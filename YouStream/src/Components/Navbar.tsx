@@ -22,7 +22,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
 
-// import { revokeToken } from "../api/googleAuth";
 import SideDrawer from "./SideDrawer";
 
 import { signOutAll } from "../redux/auth/authThunk";
@@ -48,53 +47,30 @@ export default function Navbar() {
         console.log("NAVBAR auth changed ->", auth);
     }, [auth]);
 
-    useEffect(() => {
-
-        if (!auth?.user) {
-            try {
-                const snap = localStorage.getItem("youstream_current_auth");
-                if (snap) {
-                    const parsed = JSON.parse(snap);
-                    if (parsed && (parsed.user || parsed.token || parsed.provider)) {
-
-                        dispatch({
-                            type: "AUTH_SET",
-                            payload: { user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null },
-                        });
-                    }
-                }
-            } catch (e) {
-                console.warn("Navbar rehydrate failed", e);
-            }
-        }
-
-    }, [auth?.user]);
-
-
     // useEffect(() => {
 
-    //     initGoogle(async (tokenResponse: any) => {
-    //         if (tokenResponse && tokenResponse.access_token) {
-    //             const accessToken = tokenResponse.access_token;
-    //             try {
+    //     if (!auth?.user) {
+    //         try {
+    //             const snap = localStorage.getItem("youstream_current_auth");
+    //             if (snap) {
+    //                 const parsed = JSON.parse(snap);
+    //                 if (parsed && (parsed.user || parsed.token || parsed.provider)) {
 
-    //                 const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-    //                     headers: { Authorization: `Bearer ${accessToken}` },
-    //                 });
-    //                 const profile = await res.json();
-
-    //                 await dispatch(loginGoogle(profile, accessToken));
-
-    //                 navigate("/");
-    //             } catch (err) {
-    //                 console.error("Failed to fetch google profile", err);
+    //                     dispatch({
+    //                         type: "AUTH_SET",
+    //                         payload: { user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null },
+    //                     });
+    //                 }
     //             }
-    //         } else {
-    //             console.warn("Google token callback", tokenResponse);
+    //         } catch (e) {
+    //             console.warn("Navbar rehydrate failed", e);
     //         }
-    //     });
+    //     }
 
-    // }, [dispatch, navigate]);
+    // }, [auth?.user]);
+
+
+    
 
     const doSearch = () => {
         const typed = query.trim();
@@ -112,7 +88,6 @@ export default function Navbar() {
     const handleSignOut = async () => {
         try {
             if (provider === "google" && token) {
-                // try { await revokeToken(token); } catch (e) { console.warn("revoke failed", e); }
                 localStorage.removeItem("youstream_google_token");
                 localStorage.removeItem("youstream_google_user");
             }
@@ -142,7 +117,8 @@ export default function Navbar() {
     const avatarLabel = user?.name || user?.email || "";
 
     return (
-        <AppBar position="static" sx={{ bgcolor: "white", color: "black", boxShadow: 1 }}>
+        <>
+        <AppBar position="fixed" sx={{ bgcolor: "white", color: "black", boxShadow: 1 ,width:"100%"}} >
             <Toolbar sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
                 <IconButton onClick={handleDrawerToggle} size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 1 }}>
                     <MenuIcon />
@@ -225,5 +201,8 @@ export default function Navbar() {
                 />
             </Toolbar>
         </AppBar>
+        
+        <Toolbar />
+        </>
     );
 }

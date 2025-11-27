@@ -1,6 +1,7 @@
 import { setAuth } from "./authActions";
 import { signOut as signOutAction } from "./authActions";
 import { revokeToken } from "../../api/googleAuth";
+import { AUTH_UPDATE_LOCAL_USER } from "./authTypes";
 
 function saveCurrentAuth(user: any, token: string | null, provider: string | null) {
   try {
@@ -78,4 +79,31 @@ export const signOutAll = () => async (dispatch: any, getState: any) => {
   localStorage.removeItem("youstream_current_auth");
   localStorage.removeItem("youstream_current_local_email");
   dispatch(signOutAction());
+};
+
+
+export const updateLocalUserLikes = (videoId: string, rating: 'like' | 'dislike' | 'none') => 
+  async (dispatch: any, getState: any) => {
+    const currentState = getState();
+    const user = { ...currentState.auth.user };
+    const provider = currentState.auth.provider;
+
+    if (provider !== 'local' || !user || !user.email) {
+        return; 
+    }
+
+    if (rating === 'none') {
+        delete user.likes[videoId];
+    } else {
+        user.likes[videoId] = rating;
+    }
+    
+    const key = "youstream_local_user:" + user.email;
+    localStorage.setItem(key, JSON.stringify(user));
+    
+    saveCurrentAuth(user, null, "local");
+    dispatch({
+        type: AUTH_UPDATE_LOCAL_USER,
+        payload: user,
+    });
 };

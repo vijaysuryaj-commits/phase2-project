@@ -199,3 +199,45 @@ export async function getRelatedVideos(videoId: string, maxResults = 12) {
     return [];
   }
 }
+
+export async function fetchCategories() {
+  const params: Record<string, string | number> = {
+    part: "snippet",
+    regionCode:'US'
+  }
+  const res = await youtube.get("/videoCategories", { params });
+  return (res.data?.items ?? res.data.items) || null;
+
+}
+
+export async function fetchVideosByCategory(categoryId, regionCode = 'US') {
+  const params = {
+    part: "snippet,contentDetails,statistics", 
+    chart: 'mostPopular', 
+    videoCategoryId: categoryId, 
+    regionCode: regionCode,
+    maxResults: 12 
+  };
+
+  try {
+    const res = await youtube.get("/videos", { params }); 
+    return res.data.items ?? [];
+  } catch (error) {
+    console.error(`Error fetching videos for category ${categoryId}:`, error.response?.data || error.message);
+    throw new Error("Failed to fetch videos.");
+  }
+}
+
+
+export async function rateVideo(accessToken: string, videoId: string, rating: "like" | "dislike" | "none") {
+  
+  // const url = "https://www.googleapis.com/youtube/v3/videos/rate"; 
+  const params = {
+    id: videoId,
+    rating,
+  };
+  await youtube.post("/videos/rate", null, {
+    params,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}

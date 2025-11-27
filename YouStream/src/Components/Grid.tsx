@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid,  } from "@mui/material";
+import { Grid, } from "@mui/material";
 import moment from "moment";
 import {
   Card,
@@ -31,13 +31,13 @@ const Grids = ({ videos }: Props) => {
   }
 
   const openWatch = (id: string) => {
-    
+
     navigate(`/watch/${encodeURIComponent(id)}`);
-    
+
     window.scrollTo(0, 0);
   }
 
- 
+
   const onCardKeyDown = (e: React.KeyboardEvent, id: string) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -65,18 +65,18 @@ const Grids = ({ videos }: Props) => {
         const publishedAt = video?.snippet?.publishedAt || "";
 
         return (
-          <Grid  size={{xs:12 ,sm:12, md:6, lg:3}} key={id}>
+          <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} key={id}>
             <Card
+            elevation={0}
               onClick={() => openWatch(String(id))}
               onKeyDown={(e) => onCardKeyDown(e, String(id))}
               role="button"
               tabIndex={0}
               sx={{
+
                 borderRadius: 3,
-                background: "linear-gradient(160deg, rgba(25,20,10,0.7), rgba(10,10,10,0.8))",
                 backdropFilter: "blur(6px)",
-                border: "1px solid rgba(255,165,0,0.2)",
-                boxShadow: "0 0 15px rgba(255,140,0,0.15)",
+                border: "lightgrey",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -84,7 +84,7 @@ const Grids = ({ videos }: Props) => {
                 transition: "0.3s",
                 "&:hover": {
                   transform: "scale(1.04)",
-                  boxShadow: "0 0 25px rgba(255,165,0,0.4)",
+                  bgcolor: 'rgba(68, 68, 68, 0.10)'
                 },
                 outline: "none",
               }}
@@ -100,16 +100,19 @@ const Grids = ({ videos }: Props) => {
                   borderRadius: "8px 8px 0 0",
                 }}
               />
-              <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ color: "orange" }}>
+              <CardContent sx={{
+                p: { xs: 1.5, sm: 2 },
+
+              }}>
+                <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ color: "black" }}>
                   {title}
                 </Typography>
 
-                <Typography variant="subtitle2" sx={{ color: "rgba(255,255,255,0.7)" }} noWrap>
+                <Typography variant="subtitle2" sx={{ color: "rgba(68, 68, 68, 0.97)" }} noWrap>
                   Channel: {channelTitle}
                 </Typography>
 
-                <Typography variant="subtitle2" sx={{ color: "rgba(255,255,255,0.7)" }} noWrap>
+                <Typography variant="subtitle2" sx={{ color: "grey" }} noWrap>
                   {displayViews(String(viewCount))} views • {displayDate(publishedAt)}
                 </Typography>
               </CardContent>

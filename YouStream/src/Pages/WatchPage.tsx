@@ -4,35 +4,55 @@ import { Box, Typography, CircularProgress, Button, Divider } from "@mui/materia
 import moment from "moment";
 import { getVideoDetails, getRelatedVideos } from "../api/youtubeApi";
 import RelatedVideoItem from "../Components/RelatedVideoItem";
+import { ThumbUp, ThumbDown } from '@mui/icons-material';
+import { rateVideo } from "../api/youtubeApi";
+import { updateLocalUserLikes } from "../redux/auth/authThunk";
 
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../redux/rootReducer";
 
-const LOCAL_LIKES_KEY = "youstream_likes_v1";
-const LOCAL_SUBS_KEY = "youstream_subs_v1";
-
-function readLikes(): Record<string, "like" | "dislike"> {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_LIKES_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-function writeLikes(obj: Record<string, "like" | "dislike">) {
-  localStorage.setItem(LOCAL_LIKES_KEY, JSON.stringify(obj));
-}
-
-function readSubs(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_SUBS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-function writeSubs(arr: string[]) {
-  localStorage.setItem(LOCAL_SUBS_KEY, JSON.stringify(arr));
-}
 
 const WatchPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch();
+  const { user, token: accessToken, provider } = useSelector((state: RootState) => state.auth);
+
+  const initialRating = user?.likes?.[id] || 'none';
+  const [userRating, setUserRating] = useState(initialRating);
+  const [isLoadingAction, setIsLoadingAction] = useState(false);
+
+  useEffect(() => {
+    setUserRating(user?.likes?.[id] || 'none');
+  }, [user, id]);
+
+  const handleRating = async (rating) => {
+    setIsLoadingAction(true);
+
+    try {
+      if (provider === 'google' && accessToken) {
+        await rateVideo(accessToken, id, rating);
+
+        // if (rating === 'like' && userRating !== 'like') setPublicLikeCount(prev => prev + 1);
+        // if (rating === 'none' && userRating === 'like') setPublicLikeCount(prev => prev - 1);
+
+      } else if (provider === 'local' && user) {
+        dispatch(updateLocalUserLikes(id, rating));
+
+      } else {
+        alert("Please log in to rate videos.");
+        return;
+      }
+
+      setUserRating(rating);
+
+    } catch (error) {
+      console.error(error.message);
+      alert("Failed to update rating.");
+    } finally {
+      console.log(user.likes)
+      setIsLoadingAction(false);
+    }
+  };
   const navigate = useNavigate();
 
   const [video, setVideo] = useState<any | null>(null);
@@ -41,8 +61,8 @@ const WatchPage: React.FC = () => {
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [likesMap, setLikesMap] = useState<Record<string, "like" | "dislike">>(readLikes());
-  const [subs, setSubs] = useState<string[]>(readSubs());
+  // const [likesMap, setLikesMap] = useState<Record<string, "like" | "dislike">>(readLikes());
+  // const [subs, setSubs] = useState<string[]>(readSubs());
 
   useEffect(() => {
 
@@ -91,39 +111,6 @@ const WatchPage: React.FC = () => {
   }, [id]);
 
 
-  const getLikeState = () => likesMap[id || ""] || null;
-  const toggleLike = (type: "like" | "dislike") => {
-    if (!id) return;
-    const cur = likesMap[id];
-    const newMap = { ...likesMap };
-    if (cur === type) {
-
-      delete newMap[id];
-    } else {
-      newMap[id] = type;
-    }
-    setLikesMap(newMap);
-    writeLikes(newMap);
-  };
-
-  const isSubscribed = (channelId: string | undefined) => {
-    if (!channelId) return false;
-    return subs.includes(channelId);
-  };
-
-  const toggleSubscribe = (channelId: string | undefined) => {
-    if (!channelId) return;
-    const list = [...subs];
-    const idx = list.indexOf(channelId);
-    if (idx === -1) {
-      list.push(channelId);
-    } else {
-      list.splice(idx, 1);
-    }
-    setSubs(list);
-    writeSubs(list);
-  };
-
   const openRelated = (videoId: string) => {
 
     navigate(`/watch/${videoId}`);
@@ -139,8 +126,8 @@ const WatchPage: React.FC = () => {
   };
   const formatLikes = (nStr: string | number | undefined) => {
     const n = Number(nStr || 0);
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M likes";
-    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K likes";
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
     return n + " views";
   };
 
@@ -233,29 +220,40 @@ const WatchPage: React.FC = () => {
           <Box marginLeft="auto" display="flex" gap={1}>
             <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
               <Button
-                variant={getLikeState() === "like" ? "contained" : "outlined"}
-                onClick={() => toggleLike("like")}
+                sx={{
+                  color: userRating === 'like' ? 'black' : 'grey'
+                }}
+                onClick={() => handleRating(userRating === 'like' ? 'none' : 'like')}
+                disabled={isLoadingAction}
+                startIcon={<ThumbUp
+                />}
+                variant="text"
               >
-                👍 Like
+                <Typography variant="subtitle2"  >
+                  {formatLikes(stats.likeCount)}
+                </Typography>
               </Button>
-              <Typography variant="subtitle2">
 
-                {formatLikes(stats.likeCount)}
-              </Typography>
 
             </Box>
             <Button
-              variant={getLikeState() === "dislike" ? "contained" : "outlined"}
-              onClick={() => toggleLike("dislike")}
+              sx={{
+                color: userRating === 'dislike' ? 'black' : 'grey'
+              }}
+              onClick={() => handleRating(userRating === 'dislike' ? 'none' : 'dislike')}
+              disabled={isLoadingAction}
+              startIcon={<ThumbDown />}
+              variant="text"
+
             >
-              👎 Dislike
+
             </Button>
             <Button
               color="primary"
-              variant={isSubscribed(channelId) ? "contained" : "outlined"}
-              onClick={() => toggleSubscribe(channelId)}
+              variant={"contained"}
+            // onClick={() => toggleSubscribe(channelId)}
             >
-              {isSubscribed(channelId) ? "Subscribed" : "Subscribe"}
+              {/* {isSubscribed(channelId) ? "Subscribed" : "Subscribe"} */}
             </Button>
           </Box>
         </Box>

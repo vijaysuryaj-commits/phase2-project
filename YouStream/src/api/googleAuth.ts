@@ -7,46 +7,46 @@ if (!CLIENT_ID) {
   console.warn("Missing VITE_GOOGLE_CLIENT_ID in .env");
 }
 
-const SCOPES = [
-  "openid",
-  "profile",
-  "email",
-  "https://www.googleapis.com/auth/youtube.force-ssl"
-].join(" ");
+// const SCOPES = [
+//   "openid",
+//   "profile",
+//   "email",
+//   "https://www.googleapis.com/auth/youtube.force-ssl"
+// ].join(" ");
 
-let tokenClient: any = null;
-let tokenCallback: ((tokenResp: any) => void) | null = null;
+// let tokenClient: any = null;
+// let tokenCallback: ((tokenResp: any) => void) | null = null;
 
-export function initGoogle(cb: (tokenResponse: any) => void) {
-  if (!window.google) {
-    console.warn("Google script not loaded yet (window.google is missing).");
-    return;
-  }
-  if (tokenClient) {
+// export function initGoogle(cb: (tokenResponse: any) => void) {
+//   if (!window.google) {
+//     console.warn("Google script not loaded yet (window.google is missing).");
+//     return;
+//   }
+//   if (tokenClient) {
     
-    tokenCallback = cb;
-    return tokenClient;
-  }
+//     tokenCallback = cb;
+//     return tokenClient;
+//   }
 
-  tokenCallback = cb;
+//   tokenCallback = cb;
 
-  tokenClient = window.google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (tokenResponse: any) => {
-      if (tokenCallback) tokenCallback(tokenResponse);
-    },
-  });
+//   tokenClient = window.google.accounts.oauth2.initTokenClient({
+//     client_id: CLIENT_ID,
+//     scope: SCOPES,
+//     callback: (tokenResponse: any) => {
+//       if (tokenCallback) tokenCallback(tokenResponse);
+//     },
+//   });
 
-  return tokenClient;
-}
+//   return tokenClient;
+// }
 
 
-export function startSignIn() {
-  if (!tokenClient) throw new Error("Google client not initialized.");
+// export function startSignIn() {
+//   if (!tokenClient) throw new Error("Google client not initialized.");
   
-  tokenClient.requestAccessToken();
-}
+//   tokenClient.requestAccessToken();
+// }
 
 
 export async function revokeToken(accessToken: string) {

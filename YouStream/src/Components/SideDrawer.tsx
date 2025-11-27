@@ -72,8 +72,7 @@ const SideDrawer = ({ open, onClose, onCategorySelect }) => {
                                 sx={{
                                     width: 50,
                                     height: 50,
-                                    // border: "2px solid rgba(255,165,0,0.5)",
-                                    // boxShadow: "0 0 10px rgba(255,165,0,0.4)",
+                                    
                                 }}
                             />
 
@@ -82,7 +81,6 @@ const SideDrawer = ({ open, onClose, onCategorySelect }) => {
                                 sx={{
                                     fontWeight: "bold",
                                     color: 'black',
-                                    // textShadow: "0 0 10px rgba(255,165,0,0.6)",
                                 }}
                             >
                                 YouStream
@@ -102,8 +100,6 @@ const SideDrawer = ({ open, onClose, onCategorySelect }) => {
                             }}
                             onClick={
                                 async () => {
-                                    // await setSelectedGenre(cat);
-                                    // console.log("Selected category:" + selectedGenre);
                                     onClose();
                                 }}
                         >
@@ -166,7 +162,6 @@ const SideDrawer = ({ open, onClose, onCategorySelect }) => {
                         variant="subtitle2"
                         sx={{
                             textAlign: "center",
-                            // mt: 1,
                             mb: 1,
                             letterSpacing: 1.5,
                             color: "rgba(255,255,255,0.7)",

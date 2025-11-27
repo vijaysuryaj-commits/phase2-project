@@ -9,47 +9,52 @@ import WatchPage from './Pages/WatchPage'
 import LoginPage from './Pages/LoginPage'
 import SignupPage from './Pages/SignupPage'
 import { useDispatch } from 'react-redux'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { setAuth } from './redux/auth/authActions'
 
 function App() {
   const dispatch = useDispatch<any>();
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
 
-  
-useEffect(() => {
-  try {
-    
-    const authSnap = localStorage.getItem("youstream_current_auth");
-    if (authSnap) {
-      try {
-        const parsed = JSON.parse(authSnap);
-        if (parsed && (parsed.user || parsed.token || parsed.provider)) {
-          dispatch(setAuth({ user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null }));
-          return;
-        }
-      } catch {}
-    }
-    const token = localStorage.getItem("youstream_google_token");
-    const userStr = localStorage.getItem("youstream_google_user");
-    if (token && userStr) {
-      const user = JSON.parse(userStr);
-      dispatch(setAuth({ user, token, provider: "google" }));
-      return;
-    }
-    const lastLocal = localStorage.getItem("youstream_current_local_email");
-    if (lastLocal) {
-      const key = "youstream_local_user:" + lastLocal;
-      const localUser = localStorage.getItem(key);
-      if (localUser) {
-        dispatch(setAuth({ user: JSON.parse(localUser), token: null, provider: "local" }));
+  useEffect(() => {
+    try {
+
+      const authSnap = localStorage.getItem("youstream_current_auth");
+      if (authSnap) {
+        try {
+          const parsed = JSON.parse(authSnap);
+          if (parsed && (parsed.user || parsed.token || parsed.provider)) {
+            dispatch(setAuth({ user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null }));
+            return;
+          }
+        } catch { }
+      }
+      const token = localStorage.getItem("youstream_google_token");
+      const userStr = localStorage.getItem("youstream_google_user");
+      if (token && userStr) {
+        const user = JSON.parse(userStr);
+        dispatch(setAuth({ user, token, provider: "google" }));
         return;
       }
+      const lastLocal = localStorage.getItem("youstream_current_local_email");
+      if (lastLocal) {
+        const key = "youstream_local_user:" + lastLocal;
+        const localUser = localStorage.getItem(key);
+        if (localUser) {
+          dispatch(setAuth({ user: JSON.parse(localUser), token: null, provider: "local" }));
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("rehydrate auth failed", e);
+    } finally {
+      setIsAuthInitialized(true);
     }
-  } catch (e) {
-    console.warn("rehydrate auth failed", e);
-  }
-}, [dispatch]);
+  }, [dispatch]);
 
+  if (!isAuthInitialized) {
+    return <div>Loading Application...</div>;
+  }
 
   return (
     <BrowserRouter>

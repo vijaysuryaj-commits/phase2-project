@@ -9,7 +9,6 @@ import {
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { signupLocal, loginGoogle } from "../redux/auth/authThunk";
-import { startSignIn, initGoogle } from "../api/googleAuth";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from 'jwt-decode'
 
@@ -24,11 +23,6 @@ export default function SignupPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    try {
-      initGoogle(() => { });
-    } catch { }
-  }, []);
 
   const handleGoogleSuccess = async (res) => {
     const token = res.credential;
@@ -73,14 +67,6 @@ export default function SignupPage() {
     } catch (e: any) {
       setLoading(false);
       setErr(e?.message || "Signup failed");
-    }
-  };
-
-  const google = () => {
-    try {
-      startSignIn();
-    } catch (e) {
-      setErr("Google sign-in not ready. Try refreshing.");
     }
   };
 
@@ -160,40 +146,8 @@ export default function SignupPage() {
           <Typography variant="body2">or continue with</Typography>
         </Box>
 
-        {/* <Button
-          onClick={google}
-          variant="outlined"
-          fullWidth
-          sx={{
-            textTransform: "none",
-            borderRadius: 6,
-            py: 1.2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1,
-          }}
-        >
-          <Box
-            component="span"
-            sx={{
-              width: 28,
-              height: 28,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "50%",
-              background: "#fff",
-              border: "1px solid #eee",
-              fontWeight: 700,
-            }}
-          >
-            G
-          </Box>
-          <span>Continue with Google</span>
-        </Button> */}
+     
         <GoogleLogin onSuccess={handleGoogleSuccess}
-          // width="100%"
           shape="rectangular"
           type="standard"
           size="large"
