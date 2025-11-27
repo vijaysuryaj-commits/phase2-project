@@ -1,7 +1,19 @@
 ﻿import React, { useEffect, useState } from "react";
 import {
-    AppBar, Toolbar, IconButton, Box, Button, TextField, InputAdornment,
-    Avatar, Menu, MenuItem, Tooltip, Typography, useMediaQuery, useTheme
+    AppBar,
+    Toolbar,
+    IconButton,
+    Box,
+    Button,
+    TextField,
+    InputAdornment,
+    Avatar,
+    Menu,
+    MenuItem,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
@@ -10,8 +22,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
 
-import { initGoogle, revokeToken } from "../api/googleAuth";
-import { loginGoogle } from "../redux/auth/authThunk";
+// import { revokeToken } from "../api/googleAuth";
+import SideDrawer from "./SideDrawer";
+
 import { signOutAll } from "../redux/auth/authThunk";
 export default function Navbar() {
     const navigate = useNavigate();
@@ -22,6 +35,8 @@ export default function Navbar() {
     const [query, setQuery] = useState("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
+
+    const [drawerOpen, setDrawerOpen] = useState(false)
 
     const auth = useSelector((s: RootState) => s.auth);
     const user = auth?.user;
@@ -56,30 +71,30 @@ export default function Navbar() {
     }, [auth?.user]);
 
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        initGoogle(async (tokenResponse: any) => {
-            if (tokenResponse && tokenResponse.access_token) {
-                const accessToken = tokenResponse.access_token;
-                try {
+    //     initGoogle(async (tokenResponse: any) => {
+    //         if (tokenResponse && tokenResponse.access_token) {
+    //             const accessToken = tokenResponse.access_token;
+    //             try {
 
-                    const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    });
-                    const profile = await res.json();
+    //                 const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    //                     headers: { Authorization: `Bearer ${accessToken}` },
+    //                 });
+    //                 const profile = await res.json();
 
-                    await dispatch(loginGoogle(profile, accessToken));
+    //                 await dispatch(loginGoogle(profile, accessToken));
 
-                    navigate("/");
-                } catch (err) {
-                    console.error("Failed to fetch google profile", err);
-                }
-            } else {
-                console.warn("Google token callback", tokenResponse);
-            }
-        });
+    //                 navigate("/");
+    //             } catch (err) {
+    //                 console.error("Failed to fetch google profile", err);
+    //             }
+    //         } else {
+    //             console.warn("Google token callback", tokenResponse);
+    //         }
+    //     });
 
-    }, [dispatch, navigate]);
+    // }, [dispatch, navigate]);
 
     const doSearch = () => {
         const typed = query.trim();
@@ -97,7 +112,7 @@ export default function Navbar() {
     const handleSignOut = async () => {
         try {
             if (provider === "google" && token) {
-                try { await revokeToken(token); } catch (e) { console.warn("revoke failed", e); }
+                // try { await revokeToken(token); } catch (e) { console.warn("revoke failed", e); }
                 localStorage.removeItem("youstream_google_token");
                 localStorage.removeItem("youstream_google_user");
             }
@@ -115,12 +130,21 @@ export default function Navbar() {
         navigate('/')
     }
 
+
+    const handleDrawerToggle = () => {
+        setDrawerOpen(!drawerOpen);
+    }
+
+    const handleCategorySelect = () => {
+        setDrawerOpen(false);
+    };
+
     const avatarLabel = user?.name || user?.email || "";
 
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: "black", boxShadow: 1 }}>
             <Toolbar sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
-                <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 1 }}>
+                <IconButton onClick={handleDrawerToggle} size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 1 }}>
                     <MenuIcon />
                 </IconButton>
 
@@ -129,9 +153,25 @@ export default function Navbar() {
                     {!isSmall && <Typography variant="h6" sx={{ ml: 1, fontWeight: 700 }}>YouStream</Typography>}
                 </Box>
 
-                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", px: 1 }}>
-                    <Box sx={{ width: { xs: "100%", sm: "70%", md: "52%" }, maxWidth: 800 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", bgcolor: "white", borderRadius: 5, boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+                <Box sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    px: 1
+                }}>
+                    <Box sx={{
+                        width: { xs: "100%", sm: "70%", md: "52%" },
+                        maxWidth: 800,
+
+                    }}>
+                        <Box sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            bgcolor: "white",
+                            borderRadius: 5,
+                            boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+
+                        }}>
                             <TextField
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
@@ -146,7 +186,7 @@ export default function Navbar() {
                                 }}
                             />
                             <IconButton onClick={doSearch} sx={{ px: 2 }}>
-                                <SearchIcon sx={{ color: "orange" }} />
+                                <SearchIcon sx={{ color: "grey" }} />
                             </IconButton>
                         </Box>
                     </Box>
@@ -178,6 +218,11 @@ export default function Navbar() {
                         </>
                     )}
                 </Box>
+                <SideDrawer
+                    open={drawerOpen}
+                    onClose={handleDrawerToggle}
+                    onCategorySelect={handleCategorySelect}
+                />
             </Toolbar>
         </AppBar>
     );

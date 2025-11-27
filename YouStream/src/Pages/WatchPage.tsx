@@ -6,8 +6,8 @@ import { getVideoDetails, getRelatedVideos } from "../api/youtubeApi";
 import RelatedVideoItem from "../Components/RelatedVideoItem";
 
 
-const LOCAL_LIKES_KEY = "youstream_likes_v1"; 
-const LOCAL_SUBS_KEY = "youstream_subs_v1"; 
+const LOCAL_LIKES_KEY = "youstream_likes_v1";
+const LOCAL_SUBS_KEY = "youstream_subs_v1";
 
 function readLikes(): Record<string, "like" | "dislike"> {
   try {
@@ -45,7 +45,7 @@ const WatchPage: React.FC = () => {
   const [subs, setSubs] = useState<string[]>(readSubs());
 
   useEffect(() => {
-    
+
     if (!id) return;
     let canceled = false;
     (async () => {
@@ -75,7 +75,7 @@ const WatchPage: React.FC = () => {
       setLoadingRelated(true);
       try {
         const items = await getRelatedVideos(id, 12);
-        const filtered = items.filter((v :any)=> v.id !== id);
+        const filtered = items.filter((v: any) => v.id !== id);
         if (canceled) return;
         setRelated(filtered);
       } catch (err) {
@@ -90,14 +90,14 @@ const WatchPage: React.FC = () => {
     };
   }, [id]);
 
-  
+
   const getLikeState = () => likesMap[id || ""] || null;
   const toggleLike = (type: "like" | "dislike") => {
     if (!id) return;
     const cur = likesMap[id];
     const newMap = { ...likesMap };
     if (cur === type) {
-      
+
       delete newMap[id];
     } else {
       newMap[id] = type;
@@ -125,24 +125,30 @@ const WatchPage: React.FC = () => {
   };
 
   const openRelated = (videoId: string) => {
-    
+
     navigate(`/watch/${videoId}`);
-    window.scrollTo(0, 0); 
+    window.scrollTo(0, 0);
   };
 
-  
+
   const formatViews = (nStr: string | number | undefined) => {
     const n = Number(nStr || 0);
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M views";
     if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K views";
     return n + " views";
   };
+  const formatLikes = (nStr: string | number | undefined) => {
+    const n = Number(nStr || 0);
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M likes";
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K likes";
+    return n + " views";
+  };
 
   // const durationToLabel = (iso: string | undefined) => {
-    
+
   //   try {
   //     if (!iso) return "";
-      
+
   //     const d = moment.duration(iso);
   //     const hours = d.hours();
   //     const minutes = d.minutes();
@@ -186,7 +192,7 @@ const WatchPage: React.FC = () => {
   const stats = video.statistics || {};
   const channelId = snippet.channelId;
 
-   return (
+  return (
     <Box
       p={2}
       display="grid"
@@ -194,7 +200,7 @@ const WatchPage: React.FC = () => {
       gap={2}
       alignItems="start"
     >
-    
+
       <Box >
         <Box sx={{ position: "relative", paddingTop: "56.25%", background: "#000", borderRadius: 1, overflow: "hidden" }}>
           <iframe
@@ -225,13 +231,19 @@ const WatchPage: React.FC = () => {
           </Box>
 
           <Box marginLeft="auto" display="flex" gap={1}>
-            
-            <Button
-              variant={getLikeState() === "like" ? "contained" : "outlined"}
-              onClick={() => toggleLike("like")}
-            >
-              👍 Like
-            </Button>
+            <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+              <Button
+                variant={getLikeState() === "like" ? "contained" : "outlined"}
+                onClick={() => toggleLike("like")}
+              >
+                👍 Like
+              </Button>
+              <Typography variant="subtitle2">
+
+                {formatLikes(stats.likeCount)}
+              </Typography>
+
+            </Box>
             <Button
               variant={getLikeState() === "dislike" ? "contained" : "outlined"}
               onClick={() => toggleLike("dislike")}
@@ -255,7 +267,7 @@ const WatchPage: React.FC = () => {
         </Typography>
       </Box>
 
-      
+
       <Box>
         <Typography variant="subtitle1" mb={1}>
           Related
@@ -268,7 +280,7 @@ const WatchPage: React.FC = () => {
         {!loadingRelated && related.length > 0 && (
           <Box
             sx={{
-              maxHeight: "calc(100vh - 180px)", 
+              maxHeight: "calc(100vh - 180px)",
               overflowY: "auto",
               pr: 1,
             }}

@@ -8,8 +8,10 @@ import {
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { signupLocal } from "../redux/auth/authThunk";
+import { signupLocal, loginGoogle } from "../redux/auth/authThunk";
 import { startSignIn, initGoogle } from "../api/googleAuth";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from 'jwt-decode'
 
 export default function SignupPage() {
   const dispatch = useDispatch<any>();
@@ -28,6 +30,24 @@ export default function SignupPage() {
     } catch { }
   }, []);
 
+  const handleGoogleSuccess = async (res) => {
+    const token = res.credential;
+    const decoded = jwtDecode(token)
+    try {
+      setLoading(true);
+      const res = await dispatch(loginGoogle(decoded.email, token));
+      setLoading(false);
+      if (res) {
+        setErr(res || "Login failed");
+      }
+      else
+        nav("/");
+    } catch (error: any) {
+      setLoading(false);
+      setErr(error?.message || "Login failed");
+    }
+
+  }
   const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErr(null);
@@ -140,7 +160,7 @@ export default function SignupPage() {
           <Typography variant="body2">or continue with</Typography>
         </Box>
 
-        <Button
+        {/* <Button
           onClick={google}
           variant="outlined"
           fullWidth
@@ -171,7 +191,13 @@ export default function SignupPage() {
             G
           </Box>
           <span>Continue with Google</span>
-        </Button>
+        </Button> */}
+        <GoogleLogin onSuccess={handleGoogleSuccess}
+          // width="100%"
+          shape="rectangular"
+          type="standard"
+          size="large"
+          theme="outline" />
 
         <Box mt={2} display="flex" justifyContent="center" gap={1}
           sx={{
