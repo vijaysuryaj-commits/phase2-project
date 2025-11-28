@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
@@ -178,8 +178,7 @@
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -196,31 +195,28 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -230,9 +226,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -297,7 +295,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { useEffect, useState } from "react";</span>
 <span class="cstat-no" title="statement not covered" >import { useNavigate, useParams } from "react-router-dom";</span>
-<span class="cstat-no" title="statement not covered" >import { Box, Typography, CircularProgress,Button } from "@mui/material";</span>
+<span class="cstat-no" title="statement not covered" >import { Box, Typography, CircularProgress, Button } from "@mui/material";</span>
 <span class="cstat-no" title="statement not covered" >import { searchVideos } from "../api/youtubeApi";</span>
 <span class="cstat-no" title="statement not covered" >import Grids from "../Components/Grid";</span>
 <span class="cstat-no" title="statement not covered" >import SearchTabs from "../Components/SearchTabs";</span>
@@ -307,54 +305,53 @@ const SearchPage = <span class="cstat-no" title="statement not covered" ><span c
   const { query } = <span class="cstat-no" title="statement not covered" >useParams();</span>
 &nbsp;
   const [videos, setVideos] = <span class="cstat-no" title="statement not covered" >useState&lt;any&gt;([]);</span>
-  const [nextPageToken, setNextPageToken] = <span class="cstat-no" title="statement not covered" >useState&lt;string|null&gt;(null);</span>
+  const [nextPageToken, setNextPageToken] = <span class="cstat-no" title="statement not covered" >useState&lt;string | null&gt;(null);</span>
   const [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [loadingMore, setLoadingMore] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [error, setError] = <span class="cstat-no" title="statement not covered" >useState(null);</span>
   const navigate = <span class="cstat-no" title="statement not covered" >useNavigate()</span>
-<span class="cstat-no" title="statement not covered" > useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!query) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!query) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
-  async function <span class="fstat-no" title="function not covered" >load(</span>) {
-<span class="cstat-no" title="statement not covered" >    setLoading(true);</span>
-<span class="cstat-no" title="statement not covered" >    setError(null);</span>
+    async function <span class="fstat-no" title="function not covered" >load(</span>) {
+<span class="cstat-no" title="statement not covered" >      setLoading(true);</span>
+<span class="cstat-no" title="statement not covered" >      setError(null);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const res = <span class="cstat-no" title="statement not covered" >await searchVideos(query);</span>
-<span class="cstat-no" title="statement not covered" >      setVideos(res.videos || []);</span>
-<span class="cstat-no" title="statement not covered" >      setNextPageToken(res.nextPageToken || null);</span>
-    } catch (err: any) {
-<span class="cstat-no" title="statement not covered" >      setError(err.message);</span>
-    } finally {
-<span class="cstat-no" title="statement not covered" >      setLoading(false);</span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+        const res = <span class="cstat-no" title="statement not covered" >await searchVideos(query);</span>
+<span class="cstat-no" title="statement not covered" >        setVideos(res.videos);</span>
+<span class="cstat-no" title="statement not covered" >        setNextPageToken(res.nextPageToken || null);</span>
+      } catch (err: any) {
+<span class="cstat-no" title="statement not covered" >        setError(err.message);</span>
+      } finally {
+<span class="cstat-no" title="statement not covered" >        setLoading(false);</span>
+      }
     }
-  }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  load();</span>
-}, [query]);
+<span class="cstat-no" title="statement not covered" >    load();</span>
+  }, [query]);
 &nbsp;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-    let ticking = <span class="cstat-no" title="statement not covered" >false;</span>
+    let scrolled = <span class="cstat-no" title="statement not covered" >false;</span>
     const threshold = <span class="cstat-no" title="statement not covered" >700;</span>
 &nbsp;
     const onScroll = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (ticking) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >      ticking = true;</span>
+<span class="cstat-no" title="statement not covered" >      if (scrolled) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >      scrolled = true;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      requestAnimationFrame(<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
 <span class="cstat-no" title="statement not covered" >          if (loading || loadingMore || !nextPageToken) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
-          const nearBottom =
-<span class="cstat-no" title="statement not covered" >            window.innerHeight + window.scrollY &gt;=</span>
-            document.body.offsetHeight - threshold;
+          const nearBottom =<span class="cstat-no" title="statement not covered" >window.innerHeight + window.scrollY &gt;= document.body.offsetHeight - threshold;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          if (nearBottom) {</span>
 <span class="cstat-no" title="statement not covered" >            setLoadingMore(true);</span>
 <span class="cstat-no" title="statement not covered" >            try {</span>
               const res = <span class="cstat-no" title="statement not covered" >await searchVideos(query, nextPageToken);</span>
-<span class="cstat-no" title="statement not covered" >              setVideos(<span class="fstat-no" title="function not covered" >(p</span>rev:any) =&gt; <span class="cstat-no" title="statement not covered" >[...prev, ...(res.videos || [])])</span>;</span>
+<span class="cstat-no" title="statement not covered" >              setVideos(<span class="fstat-no" title="function not covered" >(p</span>rev: any) =&gt; <span class="cstat-no" title="statement not covered" >[...prev, ...(res.videos )])</span>;</span>
 <span class="cstat-no" title="statement not covered" >              setNextPageToken(res.nextPageToken || null);</span>
             } catch (err: any) {
 <span class="cstat-no" title="statement not covered" >              setError(err.message);</span>
@@ -363,7 +360,7 @@ const SearchPage = <span class="cstat-no" title="statement not covered" ><span c
             }
           }
         } finally {
-<span class="cstat-no" title="statement not covered" >          ticking = false;</span>
+<span class="cstat-no" title="statement not covered" >          scrolled = false;</span>
         }
       });
     };
@@ -375,14 +372,14 @@ const SearchPage = <span class="cstat-no" title="statement not covered" ><span c
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;Box p={2}&gt;
       &lt;Button
-      size="large"
+        size="large"
         onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >navigate(-1)}</span>
         sx={{
           mb: 2,
           color: "black",
           textTransform: "none",
           fontWeight: 'bolder',
-          bgcolor:'rgba(0,0,0,0.05)',
+          bgcolor: 'rgba(0,0,0,0.05)',
           "&amp;:hover": { backgroundColor: "lightgrey" },
         }}
       &gt;
@@ -391,8 +388,8 @@ const SearchPage = <span class="cstat-no" title="statement not covered" ><span c
       &lt;Typography variant="h5" mb={2}&gt;
         Search results for: &lt;strong&gt;{query}&lt;/strong&gt;
       &lt;/Typography&gt;
-        &lt;SearchTabs /&gt; 
-      {loading &amp;&amp; videos.length === 0 &amp;&amp; 
+      &lt;SearchTabs /&gt;
+      {loading &amp;&amp; videos.length === 0 &amp;&amp;
         &lt;Box display="flex" justifyContent="center" mt={4}&gt;
           &lt;CircularProgress /&gt;
         &lt;/Box&gt;
@@ -418,7 +415,7 @@ const SearchPage = <span class="cstat-no" title="statement not covered" ><span c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-28T05:54:41.503Z
+                at 2025-11-28T07:56:11.499Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

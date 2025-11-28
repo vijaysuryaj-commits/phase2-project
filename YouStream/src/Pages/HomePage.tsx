@@ -90,6 +90,7 @@ const Homepage = () => {
 
         loadCategoryVideos();
     }, [selectedCategoryId])
+    
     const displayTrending = !selectedCategoryId
 
 

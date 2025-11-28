@@ -17,7 +17,7 @@ import { updateLocalUserLikes, toggleLocalSubscription } from "../redux/auth/aut
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
 
-const VideoSkeleton: React.FC = () => (
+const VideoSkeleton = () => (
   <Box>
     <Skeleton variant="rectangular" sx={{ width: "100%", pt: "56.25%", borderRadius: 1 }} />
     <Box sx={{ mt: 2 }}>
@@ -205,7 +205,7 @@ const WatchPage: React.FC = () => {
           setSubscriptionIdState(newId);
           try {
             localStorage.setItem(`yst_sub_${channelId}`, JSON.stringify({ subscriptionId: newId }));
-          } catch {}
+          } catch { }
         } else {
           if (subscriptionIdState) {
             await unsubscribe(accessToken as string, subscriptionIdState);
@@ -213,7 +213,7 @@ const WatchPage: React.FC = () => {
             setSubscriptionIdState(null);
             try {
               localStorage.removeItem(`yst_sub_${channelId}`);
-            } catch {}
+            } catch { }
           } else {
             try {
               const s = await checkSubscriptionStatus(accessToken as string, channelId);
@@ -221,12 +221,12 @@ const WatchPage: React.FC = () => {
                 const sid = s.items[0].id;
                 await unsubscribe(accessToken as string, sid);
               }
-            } catch (e) {}
+            } catch (e) { }
             setIsSubscribedState(false);
             setSubscriptionIdState(null);
             try {
               localStorage.removeItem(`yst_sub_${channelId}`);
-            } catch {}
+            } catch { }
           }
         }
       } else if (provider === "local" && user) {

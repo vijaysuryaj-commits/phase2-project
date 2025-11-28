@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/58</span>
+                <span class='fraction'>0/52</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/54</span>
+                <span class='fraction'>0/50</span>
             </div>
         
             
@@ -277,14 +277,7 @@
 <a name='L212'></a><a href='#L212'>212</a>
 <a name='L213'></a><a href='#L213'>213</a>
 <a name='L214'></a><a href='#L214'>214</a>
-<a name='L215'></a><a href='#L215'>215</a>
-<a name='L216'></a><a href='#L216'>216</a>
-<a name='L217'></a><a href='#L217'>217</a>
-<a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a>
-<a name='L220'></a><a href='#L220'>220</a>
-<a name='L221'></a><a href='#L221'>221</a>
-<a name='L222'></a><a href='#L222'>222</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L215'></a><a href='#L215'>215</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -309,8 +302,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -318,8 +309,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -339,9 +328,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -364,7 +350,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -478,6 +463,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -524,206 +510,199 @@ import type { RootState } from "../redux/rootReducer";
 <span class="cstat-no" title="statement not covered" >import { signOutAll } from "../redux/auth/authThunk";</span>
 &nbsp;
 interface Props {
-  open: boolean;
-  onClose: () =&gt; void;
+    open: boolean;
+    onClose: () =&gt; void;
 }
 &nbsp;
 const SideDrawer = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> open, onClose }: Props) =&gt; {</span>
-  const [categories, setCategories] = <span class="cstat-no" title="statement not covered" >useState&lt;{ id: string; title: string }[]&gt;(</span>
-    []
-  );
-  const [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;any&gt;();</span>
-  const navigate = <span class="cstat-no" title="statement not covered" >useNavigate();</span>
+    const [categories, setCategories] = <span class="cstat-no" title="statement not covered" >useState&lt;{ id: string; title: string }[]&gt;([]);</span>
+    const [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+    const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;any&gt;();</span>
+    const navigate = <span class="cstat-no" title="statement not covered" >useNavigate();</span>
 &nbsp;
-  const auth = <span class="cstat-no" title="statement not covered" >useSelector(<span class="fstat-no" title="function not covered" >(s</span>: RootState) =&gt; <span class="cstat-no" title="statement not covered" >s.auth)</span>;</span>
-  const user = <span class="cstat-no" title="statement not covered" >auth?.user;</span>
+    const auth = <span class="cstat-no" title="statement not covered" >useSelector(<span class="fstat-no" title="function not covered" >(s</span>: RootState) =&gt; <span class="cstat-no" title="statement not covered" >s.auth)</span>;</span>
+    const user = <span class="cstat-no" title="statement not covered" >auth?.user;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-    let mounted = <span class="cstat-no" title="statement not covered" >true;</span>
-<span class="cstat-no" title="statement not covered" >    (<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      setLoading(true);</span>
-<span class="cstat-no" title="statement not covered" >      try {</span>
-        const categories = <span class="cstat-no" title="statement not covered" >await fetchCategories();</span>
-<span class="cstat-no" title="statement not covered" >        if (!mounted) <span class="cstat-no" title="statement not covered" >return;</span></span>
-        const assignableCategories = <span class="cstat-no" title="statement not covered" >Array.isArray(categories)</span>
-          ? categories.filter(<span class="fstat-no" title="function not covered" >(c</span>ategory: any) =&gt; <span class="cstat-no" title="statement not covered" >category?.snippet?.assignable)</span>
-          : [];
-        const maxItems = <span class="cstat-no" title="statement not covered" >12;</span>
-        const list = <span class="cstat-no" title="statement not covered" >assignableCategories.slice(0, maxItems).map(<span class="fstat-no" title="function not covered" >(c</span>ategory: any) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
-          id: category.id,
-          title: category.snippet?.title ?? "Unknown",
-        }));
-<span class="cstat-no" title="statement not covered" >        setCategories(list);</span>
-      } catch (err) {
-<span class="cstat-no" title="statement not covered" >        console.warn("Failed fetching categories", err);</span>
-      } finally {
-<span class="cstat-no" title="statement not covered" >        if (mounted) <span class="cstat-no" title="statement not covered" >setLoading(false);</span></span>
-      }
-    })();
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      mounted = false;</span>
+<span class="cstat-no" title="statement not covered" >    useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        (<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            setLoading(true);</span>
+<span class="cstat-no" title="statement not covered" >            try {</span>
+                const categories = <span class="cstat-no" title="statement not covered" >await fetchCategories();</span>
+                const assignableCategories = <span class="cstat-no" title="statement not covered" >Array.isArray(categories)</span>
+                    ? categories.filter(<span class="fstat-no" title="function not covered" >(c</span>ategory: any) =&gt; <span class="cstat-no" title="statement not covered" >category?.snippet?.assignable)</span>
+                    : [];
+                const maxItems = <span class="cstat-no" title="statement not covered" >10;</span>
+                const list = <span class="cstat-no" title="statement not covered" >assignableCategories.slice(0, maxItems).map(<span class="fstat-no" title="function not covered" >(c</span>ategory: any) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+                    id: category.id,
+                    title: category.snippet?.title ?? "Unknown",
+                }));
+<span class="cstat-no" title="statement not covered" >                setCategories(list);</span>
+            } catch (err) {
+<span class="cstat-no" title="statement not covered" >                console.warn("Failed fetching categories", err);</span>
+            } finally {
+<span class="cstat-no" title="statement not covered" >                setLoading(false);</span>
+            }
+        })();
+    }, []);
+&nbsp;
+    const handleClickCategory = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>d: string, title: string) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        dispatch(setSelectedCategory(id || null, title || null));</span>
+<span class="cstat-no" title="statement not covered" >        onClose();</span>
+<span class="cstat-no" title="statement not covered" >        navigate("/", { replace: true });</span>
     };
-  }, []);
 &nbsp;
-  const handleClickCategory = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>d: string, title: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    dispatch(setSelectedCategory(id || null, title || null));</span>
-<span class="cstat-no" title="statement not covered" >    onClose();</span>
-<span class="cstat-no" title="statement not covered" >    navigate("/", { replace: true });</span>
-  };
-&nbsp;
-  const handleLogout = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      await dispatch(signOutAll());</span>
-    } catch (e) {
-<span class="cstat-no" title="statement not covered" >      console.error("logout failed", e);</span>
-    } finally {
-<span class="cstat-no" title="statement not covered" >      onClose();</span>
-<span class="cstat-no" title="statement not covered" >      navigate("/", { replace: true });</span>
-    }
-  };
+    const handleLogout = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >            await dispatch(signOutAll());</span>
+        } catch (e) {
+<span class="cstat-no" title="statement not covered" >            console.error("logout failed", e);</span>
+        } finally {
+<span class="cstat-no" title="statement not covered" >            onClose();</span>
+<span class="cstat-no" title="statement not covered" >            navigate("/", { replace: true });</span>
+        }
+    };
 &nbsp;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;div&gt;
-      &lt;Drawer
-        anchor="left"
-        open={open}
-        onClose={onClose}
-        PaperProps={{
-          sx: {
-            width: { xs: 260, sm: 320, md: 360 },
-            background: "white",
-            backdropFilter: "blur(6px)",
-            color: "black",
-          },
-        }}
-      &gt;
-        &lt;Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            px: 2,
-            py: 1.25,
-          }}
-        &gt;
-          &lt;Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 1 }}&gt;
-            &lt;Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}&gt;
-              &lt;Box sx={{ display: "flex", alignItems: "center", gap: 1 }}&gt;
-                &lt;Avatar src={logo} alt="YouStream" sx={{ width: 42, height: 42 }} /&gt;
-                &lt;Typography variant="h6" sx={{ fontWeight: 700 }}&gt;
-                  YouStream
-                &lt;/Typography&gt;
-              &lt;/Box&gt;
-&nbsp;
-              &lt;IconButton onClick={onClose} size="small" aria-label="close"&gt;
-                &lt;MenuIcon /&gt;
-              &lt;/IconButton&gt;
-            &lt;/Box&gt;
-&nbsp;
-            &lt;Box&gt;
-              {user ? (
-                &lt;Stack spacing={0.3}&gt;
-                  &lt;Typography variant="body1" sx={{ fontWeight: 700 }}&gt;
-                    Hi {user.name ? user.name.split(" ")[0] : user.email}
-                  &lt;/Typography&gt;
-                  &lt;Button
-                    onClick={handleLogout}
-                    size="small"
-                    sx={{
-                      textTransform: "none",
-                      color: "primary.main",
-                      p: 0,
-                      minWidth: 0,
-                    }}
-                  &gt;
-                    LOGOUT
-                  &lt;/Button&gt;
-                &lt;/Stack&gt;
-              ) : (
-                &lt;Button
-                  component={Link}
-                  to="/login"
-                  variant="outlined"
-                  size="small"
-                  onClick={onClose}
-                &gt;
-                  Login
-                &lt;/Button&gt;
-              )}
-            &lt;/Box&gt;
-          &lt;/Box&gt;
-&nbsp;
-          &lt;Divider sx={{ borderColor: "lightgrey", mb: 1 }} /&gt;
-&nbsp;
-          &lt;List sx={{ mb: 1 }}&gt;
-            &lt;ListItem
-              sx={{
-                px: 0,
-                py: 1,
-                "&amp;:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-                transition: "0.2s",
-                cursor: "pointer",
-              }}
-              onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; {
-<span class="cstat-no" title="statement not covered" >                onClose();</span>
-              }}
+<span class="cstat-no" title="statement not covered" >    return (</span>
+        &lt;div&gt;
+            &lt;Drawer
+                anchor="left"
+                open={open}
+                onClose={onClose}
+                PaperProps={{
+                    sx: {
+                        width: { xs: 240, sm: 280, md: 300 },
+                        background: "white",
+                        backdropFilter: "blur(6px)",
+                    },
+                }}
             &gt;
-              &lt;ListItemText primary="Favorites" primaryTypographyProps={{ fontWeight: 600 }} /&gt;
-            &lt;/ListItem&gt;
-          &lt;/List&gt;
-&nbsp;
-          &lt;Divider sx={{ borderColor: "lightgrey", mb: 1 }} /&gt;
-&nbsp;
-          &lt;Typography
-            variant="subtitle2"
-            sx={{
-              textAlign: "center",
-              mb: 1,
-              letterSpacing: 1.5,
-              color: "rgba(0,0,0,0.6)",
-            }}
-          &gt;
-            EXPLORE
-          &lt;/Typography&gt;
-&nbsp;
-          &lt;Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}&gt;
-            &lt;List&gt;
-              {loading &amp;&amp; (
-                &lt;ListItem&gt;
-                  &lt;ListItemText primary="Loading..." /&gt;
-                &lt;/ListItem&gt;
-              )}
-&nbsp;
-              {!loading &amp;&amp;
-                categories.map(<span class="fstat-no" title="function not covered" >(c</span>at) =&gt; (
-<span class="cstat-no" title="statement not covered" >                  &lt;ListItem</span>
-                    key={cat.id}
+                &lt;Box
                     sx={{
-                      px: 0,
-                      py: 1,
-                      "&amp;:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-                      transition: "0.15s",
-                      cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                        px: 2,
+                        py: 1.25,
                     }}
-                    onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >handleClickCategory(cat.id, cat.title)}</span>
-                  &gt;
-                    &lt;ListItemText primary={cat.title} /&gt;
-                  &lt;/ListItem&gt;
-                ))}
+                &gt;
+                    &lt;Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 1 }}&gt;
+                        &lt;Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}&gt;
+                            &lt;IconButton onClick={onClose} size="small" aria-label="close"&gt;
+                                &lt;MenuIcon /&gt;
+                            &lt;/IconButton&gt;
+                            &lt;Box sx={{ display: "flex", alignItems: "center", gap: 1 }}&gt;
+                                &lt;Avatar src={logo} alt="YouStream" sx={{ width: 42, height: 42 }} /&gt;
+                                &lt;Typography variant="h6" sx={{ fontWeight: 700 }}&gt;
+                                    YouStream
+                                &lt;/Typography&gt;
+                            &lt;/Box&gt;
 &nbsp;
-              {!loading &amp;&amp; categories.length === 0 &amp;&amp; (
-                &lt;ListItem&gt;
-                  &lt;ListItemText primary="No categories found" /&gt;
-                &lt;/ListItem&gt;
-              )}
-            &lt;/List&gt;
-          &lt;/Box&gt;
-        &lt;/Box&gt;
-      &lt;/Drawer&gt;
-    &lt;/div&gt;
-  );
+&nbsp;
+                        &lt;/Box&gt;
+                        &lt;Box&gt;
+                            {user ? (
+                                &lt;Stack spacing={0.3}&gt;
+                                    &lt;Typography variant="body1" sx={{ fontWeight: 700 }}&gt;
+                                        Hi, {user.name ? user.name.split(" ")[0] : user.email}
+                                    &lt;/Typography&gt;
+                                    &lt;Button
+                                        onClick={handleLogout}
+                                        size="small"
+                                        sx={{
+                                            color: "primary.main",
+                                            p: 0,
+                                            minWidth: 0,
+                                            
+                                        }}
+                                    &gt;
+                                        LOGOUT
+                                    &lt;/Button&gt;
+                                &lt;/Stack&gt;
+                            ) : (
+                                &lt;Button
+                                    component={Link}
+                                    to="/login"
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={onClose}
+                                &gt;
+                                    Login
+                                &lt;/Button&gt;
+                            )}
+                        &lt;/Box&gt;
+                    &lt;/Box&gt;
+&nbsp;
+                    &lt;Divider sx={{ borderColor: "lightgrey", mb: 1 }} /&gt;
+&nbsp;
+                    &lt;List sx={{ mb: 1 }}&gt;
+                        &lt;ListItem
+                            sx={{
+                                px: 0,
+                                py: 1,
+                                "&amp;:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                                transition: "0.2s",
+                                cursor: "pointer",
+                            }}
+                            onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; {
+<span class="cstat-no" title="statement not covered" >                                onClose();</span>
+                            }}
+                        &gt;
+                            &lt;ListItemText primary="Favorites" primaryTypographyProps={{ fontWeight: 600 }} /&gt;
+                        &lt;/ListItem&gt;
+                    &lt;/List&gt;
+&nbsp;
+                    &lt;Divider sx={{ borderColor: "lightgrey", mb: 1 }} /&gt;
+&nbsp;
+                    &lt;Typography
+                        variant="subtitle2"
+                        sx={{
+                            textAlign: "center",
+                            mb: 1,
+                            letterSpacing: 1.5,
+                            color: "rgba(0,0,0,0.6)",
+                        }}
+                    &gt;
+                        EXPLORE
+                    &lt;/Typography&gt;
+&nbsp;
+                    &lt;Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}&gt;
+                        &lt;List&gt;
+                            {loading &amp;&amp; (
+                                &lt;ListItem&gt;
+                                    &lt;ListItemText primary="Loading..." /&gt;
+                                &lt;/ListItem&gt;
+                            )}
+&nbsp;
+                            {!loading &amp;&amp;
+                                categories.map(<span class="fstat-no" title="function not covered" >(c</span>at) =&gt; (
+<span class="cstat-no" title="statement not covered" >                                    &lt;ListItem</span>
+                                        key={cat.id}
+                                        sx={{
+                                            px: 0,
+                                            py: 1,
+                                            "&amp;:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                                            transition: "0.15s",
+                                            cursor: "pointer",
+                                            
+                                        }}
+                                        onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >handleClickCategory(cat.id, cat.title)}</span>
+                                    &gt;
+                                        &lt;ListItemText primary={cat.title} /&gt;
+                                    &lt;/ListItem&gt;
+                                ))}
+&nbsp;
+                            {!loading &amp;&amp; categories.length === 0 &amp;&amp; (
+                                &lt;ListItem&gt;
+                                    &lt;ListItemText primary="No categories found" /&gt;
+                                &lt;/ListItem&gt;
+                            )}
+                        &lt;/List&gt;
+                    &lt;/Box&gt;
+                &lt;/Box&gt;
+            &lt;/Drawer&gt;
+        &lt;/div&gt;
+    );
 };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export default SideDrawer;</span></pre></td></tr></table></pre>
@@ -733,7 +712,7 @@ const SideDrawer = <span class="cstat-no" title="statement not covered" ><span c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-28T05:54:41.503Z
+                at 2025-11-28T07:56:11.499Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

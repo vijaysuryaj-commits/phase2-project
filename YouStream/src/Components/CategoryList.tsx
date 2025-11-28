@@ -12,31 +12,28 @@ interface Props {
   onCategorySelect: (id: string, title: string) => void;
 }
 
-const CategoryList = ({ selectedCategoryId, onCategorySelect }:Props) => {
+const CategoryList = ({ selectedCategoryId, onCategorySelect }: Props) => {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        const v = await fetchCategories();
-        if (!mounted) return;
-        const assignable = Array.isArray(v) ? v.filter((cat: any) => cat?.snippet?.assignable) : [];
+        const categories = await fetchCategories();
+
+        const assignable = Array.isArray(categories) ? categories.filter((cat: any) => cat?.snippet?.assignable) : [];
         setCategories(assignable);
       } catch (err: any) {
-        if (!mounted) return;
         setError(err?.message ?? "Failed to load categories");
       } finally {
-        if (!mounted) return;
         setLoading(false);
       }
     })();
     return () => {
-      mounted = false;
     };
   }, []);
 
@@ -61,14 +58,14 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }:Props) => {
 
   return (
     <Box sx={{ width: "100%", py: 1, bgcolor: "transparent" }}>
-      <Box sx={{ 
-        maxWidth: 1200, 
-        mx: "auto", 
-        position: "relative", 
-        px: { xs: 1, sm: 2 } 
-        }}>
-        
-        
+      <Box sx={{
+        maxWidth: 1200,
+        mx: "auto",
+        position: "relative",
+        px: { xs: 1, sm: 2 }
+      }}>
+
+
         <Box
           sx={{
             overflowX: "auto",
@@ -118,7 +115,7 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }:Props) => {
               return (
                 <Chip
                   key={id}
-                  
+
                   label={title}
                   onClick={() => onCategorySelect(id, title)}
                   aria-pressed={selected}
