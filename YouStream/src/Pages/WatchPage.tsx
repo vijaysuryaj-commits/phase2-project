@@ -106,7 +106,7 @@ const WatchPage: React.FC = () => {
       setLoadingRelated(true);
       try {
         const items = await getRelatedVideos(id, 12);
-        const filtered = items.filter((v: any) => v.id !== id);
+        const filtered = items.filter((video: any) => video.id !== id);
         if (canceled) return;
         setRelated(filtered);
       } catch (err) {
@@ -165,9 +165,9 @@ const WatchPage: React.FC = () => {
 
     try {
       if (provider === "google" && accessToken) {
-        await rateVideo(accessToken, id!, rating);
+        await rateVideo(accessToken, id, rating);
       } else if (provider === "local" && user) {
-        await dispatch(updateLocalUserLikes(id!, rating) as any);
+        await dispatch(updateLocalUserLikes(id, rating) as any);
       } else {
         navigate("/login");
         return;

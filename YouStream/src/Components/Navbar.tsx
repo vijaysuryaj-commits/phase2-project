@@ -21,10 +21,10 @@ import logo from "../assets/YouStream.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
-
 const SideDrawer = lazy(()=> import("./SideDrawer"))
 
 import { signOutAll } from "../redux/auth/authThunk";
+
 export default function Navbar() {
     const navigate = useNavigate();
     const dispatch = useDispatch<any>();

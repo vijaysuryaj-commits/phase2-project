@@ -21,23 +21,45 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+
+  const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+const isValidPassword = (password: string): boolean => {
+  return password.length >= 8;
+};
+
   const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErr(null);
-    if (!email.trim()) return setErr("Please enter email");
-    if (!pass.trim()) return setErr("Please enter password");
+
+    const trimmedEmail = email.trim();
+    const trimmedPass = pass.trim();
+    if (!trimmedEmail) return setErr("Please enter email");
+    if (!trimmedPass) return setErr("Please enter password");
+
+    if (!isValidEmail(trimmedEmail)) {
+        return setErr("Please enter a valid email address.");
+    }
+
+    if (!isValidPassword(trimmedPass)) {
+        return setErr("Password must be at least 8 characters long.");
+    }
     try {
       setLoading(true);
-      const res = await dispatch(loginLocal(email.trim(), pass));
+      const res = await dispatch(loginLocal(trimmedEmail, trimmedPass));
       setLoading(false);
       if (res) {
         setErr(res || "Login failed");
-      } else navigate("/");
+      } else {
+          navigate("/"); 
+      }
     } catch (error: any) {
       setLoading(false);
       setErr(error?.message || "Login failed");
     }
-  };
+};
 
   const handleGoogleSuccess = async (response: any) => {
     const idToken = response?.credential;
@@ -45,7 +67,7 @@ export default function LoginPage() {
       return;
     }
     const profile: any = jwtDecode(idToken);
-    const tokenClient = (window as any).google?.accounts?.oauth2?.initTokenClient({
+    const tokenClient = window.google?.accounts?.oauth2?.initTokenClient({
       client_id: import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID,
       scope: "https://www.googleapis.com/auth/youtube.force-ssl",
       callback: (tokenResp: any) => {

@@ -153,14 +153,14 @@ export async function getRelatedVideos(videoId: string, maxResults = 12) {
     };
 
     if (channelId) {
-      (baseSearchParams as any).channelId = channelId;
+      (baseSearchParams).channelId = channelId;
     } else if (categoryId) {
-      (baseSearchParams as any).videoCategoryId = categoryId;
+      (baseSearchParams ).videoCategoryId = categoryId;
     } else if (tags.length) {
-      (baseSearchParams as any).q = tags.slice(0, 5).join(" ");
+      (baseSearchParams ).q = tags.slice(0, 5).join(" ");
     } else {
       const keywords = title.split(/\s+/).slice(0, 6).join(" ");
-      (baseSearchParams as any).q = keywords || title;
+      (baseSearchParams ).q = keywords || title;
     }
 
     const searchRes = await youtube.get("/search", { params: baseSearchParams });
@@ -246,7 +246,7 @@ export async function fetchVideosByCategory(categoryId : string, regionCode = 'U
 }
 
 
-export async function rateVideo(accessToken: string, videoId: string, rating: "like" | "dislike" | "none") {
+export async function rateVideo(accessToken: string, videoId: string , rating: "like" | "dislike" | "none") {
   
   const params = {
     id: videoId,

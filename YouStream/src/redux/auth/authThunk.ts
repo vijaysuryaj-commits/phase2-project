@@ -1,13 +1,11 @@
 import { setAuth } from "./authActions";
-import { signOut as signOutAction } from "./authActions";
+import { signOut  } from "./authActions";
 import { revokeToken } from "../../api/googleAuth";
 import { AUTH_UPDATE_LOCAL_USER } from "./authTypes";
 
 function saveCurrentAuth(user: any, token: string | null, provider: string | null) {
-  try {
     const currentUser = { user, token, provider };
     localStorage.setItem("youstream_current_auth", JSON.stringify(currentUser));
-  } catch {}
 }
 
 export const loginLocal = (email: string, password: string) => async (dispatch: any) => {
@@ -58,7 +56,7 @@ export const signOutAll = () => async (dispatch: any, getState: any) => {
     } catch {}
   }
   localStorage.removeItem("youstream_current_auth");
-  dispatch(signOutAction());
+  dispatch(signOut());
 };
 
 export const updateLocalUserLikes = (videoId: string, rating: "like" | "dislike" | "none") => async (dispatch: any, getState: any) => {

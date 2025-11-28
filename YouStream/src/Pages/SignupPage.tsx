@@ -23,28 +23,61 @@ export default function SignupPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPassword = (password: string): boolean => {
+    const strongPassRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+    return strongPassRegex.test(password);
+  };
+
   const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErr(null);
-    if (!email.trim()) return setErr("Please enter email");
-    if (!pass.trim()) return setErr("Please enter password");
-    if (pass !== confirm) return setErr("Passwords do not match");
+
+    const trimmedEmail = email.trim();
+    const trimmedPass = pass.trim();
+    const trimmedConfirm = confirm.trim();
+    if (!trimmedEmail) return setErr("Please enter email");
+    if (!trimmedPass) return setErr("Please enter password");
+    if (!trimmedConfirm) return setErr("Please confirm your password");
+
+    if (!isValidEmail(trimmedEmail)) {
+      return setErr("Please enter a valid email address.");
+    }
+
+    if (!isValidPassword(trimmedPass)) {
+      return setErr("Password must be at least 8 characters long, contain one number, and one special character.");
+    }
+
+    if (trimmedPass !== trimmedConfirm) {
+      return setErr("Passwords do not match");
+    }
 
     try {
       setLoading(true);
-      await dispatch(signupLocal(email.trim(), pass));
-      const key = "youstream_local_user:" + email.trim();
+
+      await dispatch(signupLocal(trimmedEmail, trimmedPass));
+
+      const key = "youstream_local_user:" + trimmedEmail;
       const user = localStorage.getItem(key);
+
       if (user) {
         try {
           const u = JSON.parse(user);
           u.name = name || u.name || email.split("@")[0];
           localStorage.setItem(key, JSON.stringify(u));
-          await dispatch(signupLocal(email.trim(), pass));
-        } catch {}
+        } catch (innerError) {
+          console.error("Error updating local storage user name:", innerError);
+        }
       }
+
       setLoading(false);
       navigate("/");
+
     } catch (e: any) {
       setLoading(false);
       setErr(e?.message || "Signup failed");
