@@ -36,7 +36,7 @@ export async function getMostPopularVideos(pageToken?: string, maxResults = 12) 
   };
 }
 
-export async function searchVideos(query: string, pageToken?: string, maxResults = 12): Promise<SearchResult> {
+export async function searchVideos(query: string|undefined, pageToken?: string, maxResults = 12): Promise<SearchResult> {
   if (!query || query.trim().length === 0)
     return {
       videos: [],
@@ -104,14 +104,14 @@ export async function getVideoDetails(videoId: string) {
 }
 
 const RELATED_CACHE_KEY_PREFIX = "youstream_related_v2:";
-const RELATED_CACHE_TTL_MS = 259200000;
+const CACHE_TIMELIMIT = 259200000;
 
 function readRelatedCache(key: string) {
   try {
     const cachedItems = localStorage.getItem(key);
     if (!cachedItems) return null;
     const parsed = JSON.parse(cachedItems);
-    if (Date.now() - (parsed.ts || 0) > RELATED_CACHE_TTL_MS) {
+    if (Date.now() - (parsed.ts || 0) > CACHE_TIMELIMIT) {
       localStorage.removeItem(key);
       return null;
     }
@@ -199,18 +199,35 @@ export async function getRelatedVideos(videoId: string, maxResults = 12) {
     return [];
   }
 }
+let cachedCategories: any[] | null = null;
+let categoriesPromise: Promise<any[] | null> | null = null;
+let categoriesFetchedAt = 0;
+const cacheTimelimit = 1000 * 60 * 60 * 6; 
 
 export async function fetchCategories() {
-  const params: Record<string, string | number> = {
-    part: "snippet",
-    regionCode:'US'
+  if (cachedCategories && (Date.now() - categoriesFetchedAt) < cacheTimelimit) {
+    return cachedCategories;
   }
-  const res = await youtube.get("/videoCategories", { params });
-  return (res.data?.items ?? res.data.items) || null;
+  if (categoriesPromise) {
+    return categoriesPromise;
+  }
 
+  categoriesPromise = (async () => {
+    try {
+      const params: Record<string, string | number> = { part: "snippet", regionCode: "US" };
+      const res = await youtube.get("/videoCategories", { params });
+      const items = res.data?.items ?? [];
+      cachedCategories = items;
+      categoriesFetchedAt = Date.now();
+      return items;
+    } finally {
+      categoriesPromise = null;
+    }
+  })();
+  return categoriesPromise;
 }
 
-export async function fetchVideosByCategory(categoryId, regionCode = 'US') {
+export async function fetchVideosByCategory(categoryId : string, regionCode = 'US') {
   const params = {
     part: "snippet,contentDetails,statistics", 
     chart: 'mostPopular', 
@@ -231,7 +248,6 @@ export async function fetchVideosByCategory(categoryId, regionCode = 'US') {
 
 export async function rateVideo(accessToken: string, videoId: string, rating: "like" | "dislike" | "none") {
   
-  // const url = "https://www.googleapis.com/youtube/v3/videos/rate"; 
   const params = {
     id: videoId,
     rating,
@@ -241,3 +257,41 @@ export async function rateVideo(accessToken: string, videoId: string, rating: "l
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }
+
+
+export async function checkSubscriptionStatus(accessToken: string, channelId: string) {
+  if (!accessToken) throw new Error("Missing access token");
+  const params = { part: "snippet", forChannelId: channelId, mine: true, maxResults: 1 };
+  const res = await youtube.get("/subscriptions", {
+    params,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return res.data; 
+}
+
+export async function subscribeToChannel(accessToken: string, channelId: string) {
+  if (!accessToken) throw new Error("Missing access token");
+  const url = "/subscriptions";
+  const body = {
+    snippet: {
+      resourceId: {
+        kind: "youtube#channel",
+        channelId,
+      },
+    },
+  };
+  const res = await youtube.post(url, body, {
+    params: { part: "snippet" },
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+  });
+  return res.data; 
+}
+
+export async function unsubscribe(accessToken: string, subscriptionId: string) {
+  if (!accessToken) throw new Error("Missing access token");
+  return youtube.delete("/subscriptions", {
+    params: { id: subscriptionId },
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+

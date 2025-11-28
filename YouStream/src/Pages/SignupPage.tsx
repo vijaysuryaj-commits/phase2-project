@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -10,11 +10,11 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { signupLocal, loginGoogle } from "../redux/auth/authThunk";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode } from "jwt-decode";
 
 export default function SignupPage() {
   const dispatch = useDispatch<any>();
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,25 +23,6 @@ export default function SignupPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-
-  const handleGoogleSuccess = async (res) => {
-    const token = res.credential;
-    const decoded = jwtDecode(token)
-    try {
-      setLoading(true);
-      const res = await dispatch(loginGoogle(decoded.email, token));
-      setLoading(false);
-      if (res) {
-        setErr(res || "Login failed");
-      }
-      else
-        nav("/");
-    } catch (error: any) {
-      setLoading(false);
-      setErr(error?.message || "Login failed");
-    }
-
-  }
   const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErr(null);
@@ -60,14 +41,70 @@ export default function SignupPage() {
           u.name = name || u.name || email.split("@")[0];
           localStorage.setItem(key, JSON.stringify(u));
           await dispatch(signupLocal(email.trim(), pass));
-        } catch { }
+        } catch {}
       }
       setLoading(false);
-      nav("/");
+      navigate("/");
     } catch (e: any) {
       setLoading(false);
       setErr(e?.message || "Signup failed");
     }
+  };
+
+  const handleGoogleSuccess = async (response: any) => {
+    const idToken = response?.credential;
+    if (!idToken) {
+      setErr("Google sign-in failed (no credential).");
+      return;
+    }
+    let decoded: any;
+    try {
+      decoded = jwtDecode(idToken);
+    } catch (err) {
+      console.error("Failed to decode ID token", err);
+      setErr("Google sign-in failed (decode error).");
+      return;
+    }
+
+    const profileEmail = decoded?.email;
+    const profileName = decoded?.name;
+    if (!profileEmail) {
+      setErr("Could not decode email from Google response.");
+      return;
+    }
+
+    const win: any = window;
+    if (!win?.google?.accounts?.oauth2) {
+      setErr("Google Identity library not loaded.");
+      return;
+    }
+
+    const tokenClient = win.google.accounts.oauth2.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID,
+      scope: "https://www.googleapis.com/auth/youtube.force-ssl",
+      callback: (tokenResp: any) => {
+        const accessToken = tokenResp?.access_token;
+        if (!accessToken) {
+          setErr("Failed to obtain access token from Google.");
+          return;
+        }
+        dispatch(
+          loginGoogle({
+            email: profileEmail,
+            name: profileName,
+            idToken,
+            accessToken,
+          })
+        );
+        navigate("/");
+      },
+    });
+
+    tokenClient.requestAccessToken();
+  };
+
+  const handleGoogleError = () => {
+    setErr("Google sign-in was unsuccessful.");
   };
 
   return (
@@ -89,7 +126,7 @@ export default function SignupPage() {
           Join YouStream — sign up with email or use Google to continue.
         </Typography>
 
-        <form onSubmit={submit} >
+        <form onSubmit={submit}>
           <TextField
             label="Name (optional)"
             size="small"
@@ -146,20 +183,11 @@ export default function SignupPage() {
           <Typography variant="body2">or continue with</Typography>
         </Box>
 
-     
-        <GoogleLogin onSuccess={handleGoogleSuccess}
-          shape="rectangular"
-          type="standard"
-          size="large"
-          theme="outline" />
+        <Box display="flex" justifyContent="center" mb={2}>
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} shape="rectangular" type="standard" size="large" theme="outline" />
+        </Box>
 
-        <Box mt={2} display="flex" justifyContent="center" gap={1}
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center"
-          }}>
+        <Box mt={2} display="flex" justifyContent="center" gap={1} sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
           <Typography variant="body2">Already have an account?</Typography>
           <Button component={Link} to="/login" variant="text" size="small">
             Sign in

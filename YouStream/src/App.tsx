@@ -1,13 +1,21 @@
-
+import { lazy } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import Navbar from './Components/Navbar'
 import Homepage from './Pages/HomePage'
-import SearchPage from './Pages/SearchPage'
-import ChannelSearchPage from './Pages/ChannelSearchPage'
-import WatchPage from './Pages/WatchPage'
-import LoginPage from './Pages/LoginPage'
-import SignupPage from './Pages/SignupPage'
+const SearchPage = lazy (()=> import ('./Pages/SearchPage'))
+// import SearchPage from './Pages/SearchPage'
+const ChannelSearchPage = lazy(()=> import('./Pages/ChannelSearchPage'))
+// import ChannelSearchPage from './Pages/ChannelSearchPage'
+const WatchPage = lazy(()=>import('./Pages/WatchPage'))
+// import WatchPage from './Pages/WatchPage'
+const LoginPage = lazy(()=>import('./Pages/LoginPage'))
+// import LoginPage from './Pages/LoginPage'
+const SignupPage = lazy(()=>import('./Pages/SignupPage'))
+// import SignupPage from './Pages/SignupPage'
+const ProfilePage  = lazy(()=>import ('./Pages/ProfilePage'))
+// import NoMatchFoundRoute from './Pages/NoMatchFoundRoute'
+const NoMatchFoundRoute = lazy(()=>import('./Pages/NoMatchFoundRoute'))
 import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { setAuth } from './redux/auth/authActions'
@@ -16,44 +24,25 @@ function App() {
   const dispatch = useDispatch<any>();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
 
-  useEffect(() => {
-    try {
-
-      const authSnap = localStorage.getItem("youstream_current_auth");
-      if (authSnap) {
-        try {
-          const parsed = JSON.parse(authSnap);
-          if (parsed && (parsed.user || parsed.token || parsed.provider)) {
-            dispatch(setAuth({ user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null }));
-            return;
-          }
-        } catch { }
+ useEffect(() => {
+  try {
+    const currentUser = localStorage.getItem("youstream_current_auth");
+    if (currentUser) {
+      const parsed = JSON.parse(currentUser);
+      if (parsed && (parsed.user || parsed.token || parsed.provider)) {
+        dispatch(setAuth({ user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null }));
       }
-      const token = localStorage.getItem("youstream_google_token");
-      const userStr = localStorage.getItem("youstream_google_user");
-      if (token && userStr) {
-        const user = JSON.parse(userStr);
-        dispatch(setAuth({ user, token, provider: "google" }));
-        return;
-      }
-      const lastLocal = localStorage.getItem("youstream_current_local_email");
-      if (lastLocal) {
-        const key = "youstream_local_user:" + lastLocal;
-        const localUser = localStorage.getItem(key);
-        if (localUser) {
-          dispatch(setAuth({ user: JSON.parse(localUser), token: null, provider: "local" }));
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("rehydrate auth failed", e);
-    } finally {
-      setIsAuthInitialized(true);
     }
-  }, [dispatch]);
+  } catch (e) {
+    console.warn("Failed to restore user", e);
+  } finally {
+    setIsAuthInitialized(true);
+  }
+}, []);
+
 
   if (!isAuthInitialized) {
-    return <div>Loading Application...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -66,6 +55,8 @@ function App() {
         <Route path="/watch/:id" element={<WatchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path = '/profile' element={<ProfilePage />} />
+        <Route path='*' element={<NoMatchFoundRoute />} />
       </Routes>
     </BrowserRouter>
   )

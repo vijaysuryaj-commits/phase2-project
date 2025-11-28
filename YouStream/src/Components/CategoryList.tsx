@@ -1,100 +1,149 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { fetchCategories } from '../api/youtubeApi';
-import { Chip, Box, Pagination, useMediaQuery, useTheme, CircularProgress, Typography } from '@mui/material';
+import React, { useEffect, useState, } from "react";
+import { fetchCategories } from "../api/youtubeApi";
+import {
+  Chip,
+  Box,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 
+interface Props {
+  selectedCategoryId: string | null;
+  onCategorySelect: (id: string, title: string) => void;
+}
 
-const CategoryList = ({ selectedCategoryId, onCategorySelect }) => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const theme = useTheme();
-
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const isExtraSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const itemsPerPage = useMemo(() => {
-    if (isExtraSmallScreen) return 3;
-    if (isSmallScreen) return 5;
-    return 8;
-  }, [isSmallScreen, isExtraSmallScreen]);
+const CategoryList = ({ selectedCategoryId, onCategorySelect }:Props) => {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
-      console.log('CategoryList component mount')
       setLoading(true);
       setError(null);
       try {
         const v = await fetchCategories();
-        const assignable = v.filter(cat => cat.snippet.assignable);
+        if (!mounted) return;
+        const assignable = Array.isArray(v) ? v.filter((cat: any) => cat?.snippet?.assignable) : [];
         setCategories(assignable);
       } catch (err: any) {
-        setError(err.message)
-      } finally { }
-      setLoading(false)
-
+        if (!mounted) return;
+        setError(err?.message ?? "Failed to load categories");
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
     })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentCategories = categories.slice(startIndex, endIndex);
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
-        <CircularProgress />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>Loading categories...</Typography>
+      <Box display="flex" justifyContent="center" alignItems="center" height="120px">
+        <CircularProgress size={20} />
+        <Typography variant="body2" sx={{ marginLeft: 2 }}>
+          Loading categories...
+        </Typography>
       </Box>
     );
   }
 
   if (error) {
-    return <Box className="error" sx={{ padding: 2, color: 'error.main' }}>Error fetching data: {error}</Box>;
+    return <Box sx={{ padding: 2, color: "error.main" }}>Error fetching data: {error}</Box>;
   }
 
+  const allSelected = selectedCategoryId === null || selectedCategoryId === "";
+
   return (
-    <Box sx={{ padding: 2 }}>
-
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginBottom: 2 }}>
-        {currentCategories.map((category) => (
-          <Chip
-            key={category.id}
-            label={category.snippet.title}
-            onClick={() => onCategorySelect(category.id,category.snippet.title)}
-            color={selectedCategoryId === category.id ? "primary" : "default"}
-            variant="filled"
-            clickable
+    <Box sx={{ width: "100%", py: 1, bgcolor: "transparent" }}>
+      <Box sx={{ 
+        maxWidth: 1200, 
+        mx: "auto", 
+        position: "relative", 
+        px: { xs: 1, sm: 2 } 
+        }}>
+        
+        
+        <Box
+          sx={{
+            overflowX: "auto",
+            scrollBehavior: "smooth",
+            "&::-webkit-scrollbar": { display: "none" },
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
+          }}
+        >
+          <Box
             sx={{
-              color: selectedCategoryId === category.id ? 'white' : 'black', 
-              bgcolor: selectedCategoryId === category.id ? 'black' : 'lightgrey', 
-              '&:hover': {
-                color: 'white',
-                bgcolor: 'black'
-              }
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              py: 1,
+              flexWrap: "nowrap",
             }}
-          />
+          >
+            <Chip
+              key={"all"}
+              label={"All"}
+              onClick={() => onCategorySelect("", "")}
+              clickable
+              color={allSelected ? "primary" : "default"}
+              variant="filled"
+              sx={{
+                minWidth: 88,
+                px: 2,
+                py: 1,
+                fontWeight: allSelected ? 700 : 500,
+                bgcolor: allSelected ? "black" : "lightgrey",
+                color: allSelected ? "white" : "black",
+                borderRadius: 6,
+                whiteSpace: "nowrap",
+                flex: "0 0 auto",
+                "&:hover": {
+                  bgcolor: "black",
+                  color: "white",
+                },
+              }}
+            />
 
-        ))}
-      </Box>
-
-      <Box display="flex" justifyContent="center" marginTop={3}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-          size={isExtraSmallScreen ? "small" : "medium"}
-        />
+            {categories.map((category) => {
+              const id = category.id;
+              const title = category.snippet?.title ?? "Unknown";
+              const selected = selectedCategoryId === id;
+              return (
+                <Chip
+                  key={id}
+                  
+                  label={title}
+                  onClick={() => onCategorySelect(id, title)}
+                  aria-pressed={selected}
+                  clickable
+                  variant="filled"
+                  sx={{
+                    minWidth: 88,
+                    px: 2,
+                    py: 1,
+                    fontWeight: selected ? 700 : 500,
+                    bgcolor: selected ? "black" : "lightgrey",
+                    color: selected ? "white" : "black",
+                    borderRadius: 6,
+                    whiteSpace: "nowrap",
+                    flex: "0 0 auto",
+                    "&:hover": {
+                      bgcolor: "black",
+                      color: "white",
+                    },
+                  }}
+                />
+              );
+            })}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

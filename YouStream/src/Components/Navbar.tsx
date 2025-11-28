@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { lazy,  useState } from "react";
 import {
     AppBar,
     Toolbar,
@@ -22,7 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
 
-import SideDrawer from "./SideDrawer";
+const SideDrawer = lazy(()=> import("./SideDrawer"))
 
 import { signOutAll } from "../redux/auth/authThunk";
 export default function Navbar() {
@@ -39,40 +39,9 @@ export default function Navbar() {
 
     const auth = useSelector((s: RootState) => s.auth);
     const user = auth?.user;
-    const provider = auth?.provider;
-    const token = auth?.token;
 
 
-    useEffect(() => {
-        console.log("NAVBAR auth changed ->", auth);
-    }, [auth]);
-
-    // useEffect(() => {
-
-    //     if (!auth?.user) {
-    //         try {
-    //             const snap = localStorage.getItem("youstream_current_auth");
-    //             if (snap) {
-    //                 const parsed = JSON.parse(snap);
-    //                 if (parsed && (parsed.user || parsed.token || parsed.provider)) {
-
-    //                     dispatch({
-    //                         type: "AUTH_SET",
-    //                         payload: { user: parsed.user, token: parsed.token ?? null, provider: parsed.provider ?? null },
-    //                     });
-    //                 }
-    //             }
-    //         } catch (e) {
-    //             console.warn("Navbar rehydrate failed", e);
-    //         }
-    //     }
-
-    // }, [auth?.user]);
-
-
-    
-
-    const doSearch = () => {
+        const doSearch = () => {
         const typed = query.trim();
         if (!typed) return;
         navigate(`/search/videos/${encodeURIComponent(typed)}`);
@@ -87,11 +56,6 @@ export default function Navbar() {
 
     const handleSignOut = async () => {
         try {
-            if (provider === "google" && token) {
-                localStorage.removeItem("youstream_google_token");
-                localStorage.removeItem("youstream_google_user");
-            }
-
             await dispatch(signOutAll());
             closeMenu();
             navigate("/");
@@ -105,14 +69,10 @@ export default function Navbar() {
         navigate('/')
     }
 
-
     const handleDrawerToggle = () => {
         setDrawerOpen(!drawerOpen);
     }
-
-    const handleCategorySelect = () => {
-        setDrawerOpen(false);
-    };
+    
 
     const avatarLabel = user?.name || user?.email || "";
 
@@ -124,7 +84,13 @@ export default function Navbar() {
                     <MenuIcon />
                 </IconButton>
 
-                <Box onClick={clearSearch} sx={{ cursor: "pointer", display: "flex", alignItems: "center", textDecoration: "none", color: "inherit", mr: 2 }}>
+                <Box onClick={clearSearch} 
+                sx={{ 
+                    cursor: "pointer", 
+                    display: "flex",
+                     alignItems: "center", 
+                     textDecoration: "none", 
+                     color: "inherit", mr: 2 }}>
                     <Box component="img" src={logo} alt="YouStream" sx={{ width: { xs: 36, sm: 48 }, height: { xs: 36, sm: 48 }, borderRadius: 1 }} />
                     {!isSmall && <Typography variant="h6" sx={{ ml: 1, fontWeight: 700 }}>YouStream</Typography>}
                 </Box>
@@ -136,16 +102,16 @@ export default function Navbar() {
                     px: 1
                 }}>
                     <Box sx={{
-                        width: { xs: "100%", sm: "70%", md: "52%" },
+                        width: { xs: "100%", sm: "70%", md: "50%" },
                         maxWidth: 800,
-
                     }}>
                         <Box sx={{
                             display: "flex",
                             alignItems: "center",
                             bgcolor: "white",
                             borderRadius: 5,
-                            boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                            border:1,
+                            borderColor:'lightgrey'
 
                         }}>
                             <TextField
@@ -197,7 +163,6 @@ export default function Navbar() {
                 <SideDrawer
                     open={drawerOpen}
                     onClose={handleDrawerToggle}
-                    onCategorySelect={handleCategorySelect}
                 />
             </Toolbar>
         </AppBar>

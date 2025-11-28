@@ -1,59 +1,66 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, CircularProgress, Button, Divider } from "@mui/material";
+import { Box, Typography, Skeleton, Button, Divider } from "@mui/material";
 import moment from "moment";
-import { getVideoDetails, getRelatedVideos } from "../api/youtubeApi";
+import {
+  getVideoDetails,
+  getRelatedVideos,
+  rateVideo,
+  checkSubscriptionStatus,
+  subscribeToChannel,
+  unsubscribe,
+} from "../api/youtubeApi";
 import RelatedVideoItem from "../Components/RelatedVideoItem";
-import { ThumbUp, ThumbDown } from '@mui/icons-material';
-import { rateVideo } from "../api/youtubeApi";
-import { updateLocalUserLikes } from "../redux/auth/authThunk";
+import { ThumbUp, ThumbDown } from "@mui/icons-material";
+import { updateLocalUserLikes, toggleLocalSubscription } from "../redux/auth/authThunk";
 
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
 
+const VideoSkeleton: React.FC = () => (
+  <Box>
+    <Skeleton variant="rectangular" sx={{ width: "100%", pt: "56.25%", borderRadius: 1 }} />
+    <Box sx={{ mt: 2 }}>
+      <Skeleton width="60%" height={28} />
+      <Skeleton width="40%" height={20} sx={{ mt: 1 }} />
+      <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+        <Skeleton variant="rectangular" width={96} height={36} sx={{ borderRadius: 2 }} />
+        <Skeleton variant="rectangular" width={36} height={36} sx={{ borderRadius: 2 }} />
+        <Skeleton variant="rectangular" width={96} height={36} sx={{ borderRadius: 2 }} />
+      </Box>
+      <Skeleton variant="text" height={16} sx={{ mt: 2 }} />
+      <Skeleton variant="text" height={16} width="95%" />
+      <Skeleton variant="text" height={16} width="85%" />
+    </Box>
+  </Box>
+);
+
+const RelatedSkeletonList: React.FC<{ count?: number }> = ({ count = 6 }) => {
+  const items = Array.from({ length: count });
+  return (
+    <Box sx={{ display: "grid", gap: 2 }}>
+      {items.map((_, i) => (
+        <Box key={i} sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Skeleton variant="rectangular" width={120} height={68} sx={{ borderRadius: 1 }} />
+          <Box sx={{ minWidth: 0, width: "100%" }}>
+            <Skeleton width="80%" height={18} />
+            <Skeleton width="60%" height={14} />
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+};
 
 const WatchPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, token: accessToken, provider } = useSelector((state: RootState) => state.auth);
 
-  const initialRating = user?.likes?.[id] || 'none';
+  const initialRating = user?.likes?.[id] || "none";
   const [userRating, setUserRating] = useState(initialRating);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
-
-  useEffect(() => {
-    setUserRating(user?.likes?.[id] || 'none');
-  }, [user, id]);
-
-  const handleRating = async (rating) => {
-    setIsLoadingAction(true);
-
-    try {
-      if (provider === 'google' && accessToken) {
-        await rateVideo(accessToken, id, rating);
-
-        // if (rating === 'like' && userRating !== 'like') setPublicLikeCount(prev => prev + 1);
-        // if (rating === 'none' && userRating === 'like') setPublicLikeCount(prev => prev - 1);
-
-      } else if (provider === 'local' && user) {
-        dispatch(updateLocalUserLikes(id, rating));
-
-      } else {
-        alert("Please log in to rate videos.");
-        return;
-      }
-
-      setUserRating(rating);
-
-    } catch (error) {
-      console.error(error.message);
-      alert("Failed to update rating.");
-    } finally {
-      console.log(user.likes)
-      setIsLoadingAction(false);
-    }
-  };
-  const navigate = useNavigate();
 
   const [video, setVideo] = useState<any | null>(null);
   const [related, setRelated] = useState<any[]>([]);
@@ -61,11 +68,15 @@ const WatchPage: React.FC = () => {
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // const [likesMap, setLikesMap] = useState<Record<string, "like" | "dislike">>(readLikes());
-  // const [subs, setSubs] = useState<string[]>(readSubs());
+  const [isSubscribedState, setIsSubscribedState] = useState<boolean>(false);
+  const [subscriptionIdState, setSubscriptionIdState] = useState<string | null>(null);
+  const [subLoading, setSubLoading] = useState(false);
 
   useEffect(() => {
+    setUserRating(user?.likes?.[id] || "none");
+  }, [user, id]);
 
+  useEffect(() => {
     if (!id) return;
     let canceled = false;
     (async () => {
@@ -110,13 +121,143 @@ const WatchPage: React.FC = () => {
     };
   }, [id]);
 
+  useEffect(() => {
+    async function initSubscription() {
+      const channelId = video?.snippet?.channelId;
+      if (!channelId) return;
+
+      if (provider === "google" && accessToken) {
+        try {
+          const res = await checkSubscriptionStatus(accessToken, channelId);
+          if (Array.isArray(res.items) && res.items.length) {
+            setIsSubscribedState(true);
+            setSubscriptionIdState(res.items[0].id || null);
+          } else {
+            setIsSubscribedState(false);
+            setSubscriptionIdState(null);
+          }
+        } catch {
+          setIsSubscribedState(false);
+          setSubscriptionIdState(null);
+        }
+      } else if (provider === "local" && user) {
+        const stored = localStorage.getItem("youstream_local_user:" + user.email);
+        const persisted = stored ? JSON.parse(stored) : user;
+        const subs = Array.isArray(persisted.subs) ? persisted.subs : [];
+        setIsSubscribedState(subs.includes(channelId));
+        setSubscriptionIdState(null);
+      } else {
+        setIsSubscribedState(false);
+        setSubscriptionIdState(null);
+      }
+    }
+
+    initSubscription();
+  }, [video, provider, accessToken, user]);
+
+  const handleRating = async (rating: any) => {
+    if (!user || (!accessToken && provider !== "local")) {
+      navigate("/login");
+      return;
+    }
+
+    setIsLoadingAction(true);
+
+    try {
+      if (provider === "google" && accessToken) {
+        await rateVideo(accessToken, id!, rating);
+      } else if (provider === "local" && user) {
+        await dispatch(updateLocalUserLikes(id!, rating) as any);
+      } else {
+        navigate("/login");
+        return;
+      }
+
+      setUserRating(rating);
+    } catch (error: any) {
+      console.error(error?.message ?? error);
+      alert("Failed to update rating.");
+    } finally {
+      setIsLoadingAction(false);
+    }
+  };
+
+  const handleSubscribeToggle = async () => {
+    if (!user || (!accessToken && provider !== "local")) {
+      navigate("/login");
+      return;
+    }
+
+    setSubLoading(true);
+    try {
+      const snippet = video?.snippet || {};
+      const channelId = snippet.channelId;
+      if (!channelId) {
+        alert("Channel information not available yet.");
+        return;
+      }
+
+      if (provider === "google" && accessToken) {
+        if (!isSubscribedState) {
+          const res = await subscribeToChannel(accessToken as string, channelId);
+          const newId = res?.id ?? null;
+          setIsSubscribedState(true);
+          setSubscriptionIdState(newId);
+          try {
+            localStorage.setItem(`yst_sub_${channelId}`, JSON.stringify({ subscriptionId: newId }));
+          } catch {}
+        } else {
+          if (subscriptionIdState) {
+            await unsubscribe(accessToken as string, subscriptionIdState);
+            setIsSubscribedState(false);
+            setSubscriptionIdState(null);
+            try {
+              localStorage.removeItem(`yst_sub_${channelId}`);
+            } catch {}
+          } else {
+            try {
+              const s = await checkSubscriptionStatus(accessToken as string, channelId);
+              if (Array.isArray(s.items) && s.items.length) {
+                const sid = s.items[0].id;
+                await unsubscribe(accessToken as string, sid);
+              }
+            } catch (e) {}
+            setIsSubscribedState(false);
+            setSubscriptionIdState(null);
+            try {
+              localStorage.removeItem(`yst_sub_${channelId}`);
+            } catch {}
+          }
+        }
+      } else if (provider === "local" && user) {
+        await dispatch(toggleLocalSubscription(channelId) as any);
+        try {
+          const stored = localStorage.getItem("youstream_local_user:" + user.email);
+          if (stored) {
+            const persisted = JSON.parse(stored);
+            const subs: string[] = Array.isArray(persisted.subs) ? persisted.subs : [];
+            setIsSubscribedState(subs.includes(channelId));
+          } else {
+            setIsSubscribedState((prev) => !prev);
+          }
+        } catch {
+          setIsSubscribedState((prev) => !prev);
+        }
+      } else {
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error("Subscribe toggle failed", err);
+      alert("Failed to change subscription. Try again.");
+    } finally {
+      setSubLoading(false);
+    }
+  };
 
   const openRelated = (videoId: string) => {
-
     navigate(`/watch/${videoId}`);
     window.scrollTo(0, 0);
   };
-
 
   const formatViews = (nStr: string | number | undefined) => {
     const n = Number(nStr || 0);
@@ -131,30 +272,27 @@ const WatchPage: React.FC = () => {
     return n + " views";
   };
 
-  // const durationToLabel = (iso: string | undefined) => {
-
-  //   try {
-  //     if (!iso) return "";
-
-  //     const d = moment.duration(iso);
-  //     const hours = d.hours();
-  //     const minutes = d.minutes();
-  //     const seconds = d.seconds();
-  //     const hh = hours ? `${hours}:` : "";
-  //     const mm = hours ? String(minutes).padStart(2, "0") : String(minutes);
-  //     const ss = String(seconds).padStart(2, "0");
-  //     return hh + mm + ":" + ss;
-  //   } catch {
-  //     return "";
-  //   }
-  // };
-
   if (!id) return <Box p={2}>No video selected</Box>;
 
   if (loading) {
     return (
-      <Box p={4} display="flex" justifyContent="center">
-        <CircularProgress />
+      <Box
+        p={2}
+        display="grid"
+        gridTemplateColumns={{ xs: "1fr", md: "minmax(0, 3fr) minmax(0, 1fr)" }}
+        gap={2}
+        alignItems="start"
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <VideoSkeleton />
+        </Box>
+
+        <Box sx={{ minWidth: 0, maxWidth: 480 }}>
+          <Typography variant="subtitle1" mb={1}>
+            Related
+          </Typography>
+          <RelatedSkeletonList count={8} />
+        </Box>
       </Box>
     );
   }
@@ -177,19 +315,25 @@ const WatchPage: React.FC = () => {
 
   const snippet = video.snippet || {};
   const stats = video.statistics || {};
-  const channelId = snippet.channelId;
 
   return (
     <Box
       p={2}
       display="grid"
-      gridTemplateColumns={{ xs: "1fr", md: "4fr 1fr" }}
+      gridTemplateColumns={{ xs: "1fr", md: "minmax(0, 3fr) minmax(0, 1fr)" }}
       gap={2}
       alignItems="start"
     >
-
-      <Box >
-        <Box sx={{ position: "relative", paddingTop: "56.25%", background: "#000", borderRadius: 1, overflow: "hidden" }}>
+      <Box sx={{ minWidth: 0 }}>
+        <Box
+          sx={{
+            position: "relative",
+            paddingTop: "56.25%",
+            background: "#000",
+            borderRadius: 1,
+            overflow: "hidden",
+          }}
+        >
           <iframe
             title={snippet.title || "video player"}
             src={`https://www.youtube.com/embed/${id}`}
@@ -210,50 +354,38 @@ const WatchPage: React.FC = () => {
         </Typography>
 
         <Box display="flex" gap={2} alignItems="center" mt={1}>
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography variant="subtitle2">{snippet.channelTitle}</Typography>
             <Typography variant="body2" color="text.secondary">
               {formatViews(stats.viewCount)} • {moment(snippet.publishedAt).fromNow()}
             </Typography>
           </Box>
 
-          <Box marginLeft="auto" display="flex" gap={1}>
+          <Box marginLeft="auto" display="flex" gap={1} alignItems="center">
             <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
               <Button
                 sx={{
-                  color: userRating === 'like' ? 'black' : 'grey'
+                  color: userRating === "like" ? "black" : "grey",
                 }}
-                onClick={() => handleRating(userRating === 'like' ? 'none' : 'like')}
+                onClick={() => handleRating(userRating === "like" ? "none" : "like")}
                 disabled={isLoadingAction}
-                startIcon={<ThumbUp
-                />}
+                startIcon={<ThumbUp />}
                 variant="text"
               >
-                <Typography variant="subtitle2"  >
-                  {formatLikes(stats.likeCount)}
-                </Typography>
+                <Typography variant="subtitle2">{formatLikes(stats.likeCount)}</Typography>
               </Button>
-
-
             </Box>
             <Button
               sx={{
-                color: userRating === 'dislike' ? 'black' : 'grey'
+                color: userRating === "dislike" ? "black" : "grey",
               }}
-              onClick={() => handleRating(userRating === 'dislike' ? 'none' : 'dislike')}
+              onClick={() => handleRating(userRating === "dislike" ? "none" : "dislike")}
               disabled={isLoadingAction}
               startIcon={<ThumbDown />}
               variant="text"
-
-            >
-
-            </Button>
-            <Button
-              color="primary"
-              variant={"contained"}
-            // onClick={() => toggleSubscribe(channelId)}
-            >
-              {/* {isSubscribed(channelId) ? "Subscribed" : "Subscribe"} */}
+            />
+            <Button color="primary" variant={isSubscribedState ? "contained" : "outlined"} onClick={handleSubscribeToggle} disabled={subLoading}>
+              {isSubscribedState ? "Subscribed" : "Subscribe"}
             </Button>
           </Box>
         </Box>
@@ -265,13 +397,12 @@ const WatchPage: React.FC = () => {
         </Typography>
       </Box>
 
-
-      <Box>
+      <Box sx={{ minWidth: 0, maxWidth: 480 }}>
         <Typography variant="subtitle1" mb={1}>
           Related
         </Typography>
 
-        {loadingRelated && <CircularProgress size={20} />}
+        {loadingRelated && <RelatedSkeletonList count={6} />}
 
         {!loadingRelated && related.length === 0 && <Typography>No related videos found</Typography>}
 
@@ -281,6 +412,14 @@ const WatchPage: React.FC = () => {
               maxHeight: "calc(100vh - 180px)",
               overflowY: "auto",
               pr: 1,
+              "& .related-title": {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                whiteSpace: "normal",
+              },
             }}
           >
             {related.map((video, index) => (
@@ -291,7 +430,6 @@ const WatchPage: React.FC = () => {
       </Box>
     </Box>
   );
-
 };
 
 export default WatchPage;

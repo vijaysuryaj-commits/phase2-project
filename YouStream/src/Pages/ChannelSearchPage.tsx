@@ -7,7 +7,6 @@ import SearchTabs from "../Components/SearchTabs";
 const ChannelSearchPage = () => {
   const { query } = useParams();
   const [channels, setChannels] = useState([]);
-  const [nextPageToken, setNext] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -19,7 +18,6 @@ const ChannelSearchPage = () => {
       const res = await searchChannels(query);
       if (!cancel) {
         setChannels(res.channels);
-        setNext(res.nextPageToken);
       }
       setLoading(false);
     })();
