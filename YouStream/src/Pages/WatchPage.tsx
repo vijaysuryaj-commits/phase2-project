@@ -269,7 +269,7 @@ const WatchPage: React.FC = () => {
     const n = Number(nStr || 0);
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
     if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
-    return n + " views";
+    return n + " likes";
   };
 
   if (!id) return <Box p={2}>No video selected</Box>;
