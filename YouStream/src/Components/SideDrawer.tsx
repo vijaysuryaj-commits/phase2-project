@@ -17,206 +17,199 @@ import type { RootState } from "../redux/rootReducer";
 import { signOutAll } from "../redux/auth/authThunk";
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
+    open: boolean;
+    onClose: () => void;
 }
 
 const SideDrawer = ({ open, onClose }: Props) => {
-  const [categories, setCategories] = useState<{ id: string; title: string }[]>(
-    []
-  );
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch<any>();
-  const navigate = useNavigate();
+    const [categories, setCategories] = useState<{ id: string; title: string }[]>([]);
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch<any>();
+    const navigate = useNavigate();
 
-  const auth = useSelector((s: RootState) => s.auth);
-  const user = auth?.user;
+    const auth = useSelector((s: RootState) => s.auth);
+    const user = auth?.user;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const categories = await fetchCategories();
-        if (!mounted) return;
-        const assignableCategories = Array.isArray(categories)
-          ? categories.filter((category: any) => category?.snippet?.assignable)
-          : [];
-        const maxItems = 12;
-        const list = assignableCategories.slice(0, maxItems).map((category: any) => ({
-          id: category.id,
-          title: category.snippet?.title ?? "Unknown",
-        }));
-        setCategories(list);
-      } catch (err) {
-        console.warn("Failed fetching categories", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            try {
+                const categories = await fetchCategories();
+                const assignableCategories = Array.isArray(categories)
+                    ? categories.filter((category: any) => category?.snippet?.assignable)
+                    : [];
+                const maxItems = 10;
+                const list = assignableCategories.slice(0, maxItems).map((category: any) => ({
+                    id: category.id,
+                    title: category.snippet?.title ?? "Unknown",
+                }));
+                setCategories(list);
+            } catch (err) {
+                console.warn("Failed fetching categories", err);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
+
+    const handleClickCategory = (id: string, title: string) => {
+        dispatch(setSelectedCategory(id || null, title || null));
+        onClose();
+        navigate("/", { replace: true });
     };
-  }, []);
 
-  const handleClickCategory = (id: string, title: string) => {
-    dispatch(setSelectedCategory(id || null, title || null));
-    onClose();
-    navigate("/", { replace: true });
-  };
-
-  const handleLogout = async () => {
-    try {
-      await dispatch(signOutAll());
-    } catch (e) {
-      console.error("logout failed", e);
-    } finally {
-      onClose();
-      navigate("/", { replace: true });
-    }
-  };
+    const handleLogout = async () => {
+        try {
+            await dispatch(signOutAll());
+        } catch (e) {
+            console.error("logout failed", e);
+        } finally {
+            onClose();
+            navigate("/", { replace: true });
+        }
+    };
 
 
-  return (
-    <div>
-      <Drawer
-        anchor="left"
-        open={open}
-        onClose={onClose}
-        PaperProps={{
-          sx: {
-            width: { xs: 260, sm: 320, md: 360 },
-            background: "white",
-            backdropFilter: "blur(6px)",
-            color: "black",
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            px: 2,
-            py: 1.25,
-          }}
-        >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 1 }}>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Avatar src={logo} alt="YouStream" sx={{ width: 42, height: 42 }} />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  YouStream
-                </Typography>
-              </Box>
-
-              <IconButton onClick={onClose} size="small" aria-label="close">
-                <MenuIcon />
-              </IconButton>
-            </Box>
-
-            <Box>
-              {user ? (
-                <Stack spacing={0.3}>
-                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                    Hi {user.name ? user.name.split(" ")[0] : user.email}
-                  </Typography>
-                  <Button
-                    onClick={handleLogout}
-                    size="small"
-                    sx={{
-                      textTransform: "none",
-                      color: "primary.main",
-                      p: 0,
-                      minWidth: 0,
-                    }}
-                  >
-                    LOGOUT
-                  </Button>
-                </Stack>
-              ) : (
-                <Button
-                  component={Link}
-                  to="/login"
-                  variant="outlined"
-                  size="small"
-                  onClick={onClose}
-                >
-                  Login
-                </Button>
-              )}
-            </Box>
-          </Box>
-
-          <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
-
-          <List sx={{ mb: 1 }}>
-            <ListItem
-              sx={{
-                px: 0,
-                py: 1,
-                "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-                transition: "0.2s",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                onClose();
-              }}
+    return (
+        <div>
+            <Drawer
+                anchor="left"
+                open={open}
+                onClose={onClose}
+                PaperProps={{
+                    sx: {
+                        width: { xs: 240, sm: 280, md: 300 },
+                        background: "white",
+                        backdropFilter: "blur(6px)",
+                    },
+                }}
             >
-              <ListItemText primary="Favorites" primaryTypographyProps={{ fontWeight: 600 }} />
-            </ListItem>
-          </List>
-
-          <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
-
-          <Typography
-            variant="subtitle2"
-            sx={{
-              textAlign: "center",
-              mb: 1,
-              letterSpacing: 1.5,
-              color: "rgba(0,0,0,0.6)",
-            }}
-          >
-            EXPLORE
-          </Typography>
-
-          <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
-            <List>
-              {loading && (
-                <ListItem>
-                  <ListItemText primary="Loading..." />
-                </ListItem>
-              )}
-
-              {!loading &&
-                categories.map((cat) => (
-                  <ListItem
-                    key={cat.id}
+                <Box
                     sx={{
-                      px: 0,
-                      py: 1,
-                      "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-                      transition: "0.15s",
-                      cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                        px: 2,
+                        py: 1.25,
                     }}
-                    onClick={() => handleClickCategory(cat.id, cat.title)}
-                  >
-                    <ListItemText primary={cat.title} />
-                  </ListItem>
-                ))}
+                >
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <IconButton onClick={onClose} size="small" aria-label="close">
+                                <MenuIcon />
+                            </IconButton>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Avatar src={logo} alt="YouStream" sx={{ width: 42, height: 42 }} />
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                    YouStream
+                                </Typography>
+                            </Box>
 
-              {!loading && categories.length === 0 && (
-                <ListItem>
-                  <ListItemText primary="No categories found" />
-                </ListItem>
-              )}
-            </List>
-          </Box>
-        </Box>
-      </Drawer>
-    </div>
-  );
+
+                        </Box>
+                        <Box>
+                            {user ? (
+                                <Stack spacing={0.3}>
+                                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                                        Hi, {user.name ? user.name.split(" ")[0] : user.email}
+                                    </Typography>
+                                    <Button
+                                        onClick={handleLogout}
+                                        size="small"
+                                        sx={{
+                                            color: "primary.main",
+                                            p: 0,
+                                            minWidth: 0,
+                                            
+                                        }}
+                                    >
+                                        LOGOUT
+                                    </Button>
+                                </Stack>
+                            ) : (
+                                <Button
+                                    component={Link}
+                                    to="/login"
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={onClose}
+                                >
+                                    Login
+                                </Button>
+                            )}
+                        </Box>
+                    </Box>
+
+                    <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
+
+                    <List sx={{ mb: 1 }}>
+                        <ListItem
+                            sx={{
+                                px: 0,
+                                py: 1,
+                                "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                                transition: "0.2s",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => {
+                                onClose();
+                            }}
+                        >
+                            <ListItemText primary="Favorites" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItem>
+                    </List>
+
+                    <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
+
+                    <Typography
+                        variant="subtitle2"
+                        sx={{
+                            textAlign: "center",
+                            mb: 1,
+                            letterSpacing: 1.5,
+                            color: "rgba(0,0,0,0.6)",
+                        }}
+                    >
+                        EXPLORE
+                    </Typography>
+
+                    <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+                        <List>
+                            {loading && (
+                                <ListItem>
+                                    <ListItemText primary="Loading..." />
+                                </ListItem>
+                            )}
+
+                            {!loading &&
+                                categories.map((cat) => (
+                                    <ListItem
+                                        key={cat.id}
+                                        sx={{
+                                            px: 0,
+                                            py: 1,
+                                            "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                                            transition: "0.15s",
+                                            cursor: "pointer",
+                                            
+                                        }}
+                                        onClick={() => handleClickCategory(cat.id, cat.title)}
+                                    >
+                                        <ListItemText primary={cat.title} />
+                                    </ListItem>
+                                ))}
+
+                            {!loading && categories.length === 0 && (
+                                <ListItem>
+                                    <ListItemText primary="No categories found" />
+                                </ListItem>
+                            )}
+                        </List>
+                    </Box>
+                </Box>
+            </Drawer>
+        </div>
+    );
 };
 
 export default SideDrawer;

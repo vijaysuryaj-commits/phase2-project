@@ -1,4 +1,4 @@
-﻿import React, { lazy,  useState } from "react";
+﻿import React, { lazy, useState } from "react";
 import {
     AppBar,
     Toolbar,
@@ -21,7 +21,7 @@ import logo from "../assets/YouStream.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../redux/rootReducer";
-const SideDrawer = lazy(()=> import("./SideDrawer"))
+const SideDrawer = lazy(() => import("./SideDrawer"))
 
 import { signOutAll } from "../redux/auth/authThunk";
 
@@ -41,7 +41,7 @@ export default function Navbar() {
     const user = auth?.user;
 
 
-        const doSearch = () => {
+    const doSearch = () => {
         const typed = query.trim();
         if (!typed) return;
         navigate(`/search/videos/${encodeURIComponent(typed)}`);
@@ -65,6 +65,7 @@ export default function Navbar() {
     };
 
     const clearSearch = () => {
+        if(query.trim())
         setQuery("")
         navigate('/')
     }
@@ -72,102 +73,102 @@ export default function Navbar() {
     const handleDrawerToggle = () => {
         setDrawerOpen(!drawerOpen);
     }
-    
 
     const avatarLabel = user?.name || user?.email || "";
 
     return (
         <>
-        <AppBar position="fixed" sx={{ bgcolor: "white", color: "black", boxShadow: 1 ,width:"100%"}} >
-            <Toolbar sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
-                <IconButton onClick={handleDrawerToggle} size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 1 }}>
-                    <MenuIcon />
-                </IconButton>
+            <AppBar position="fixed" sx={{ bgcolor: "white", color: "black", boxShadow: 1, width: "100%" }} >
+                <Toolbar sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
+                    <IconButton onClick={handleDrawerToggle} size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 1 }}>
+                        <MenuIcon />
+                    </IconButton>
 
-                <Box onClick={clearSearch} 
-                sx={{ 
-                    cursor: "pointer", 
-                    display: "flex",
-                     alignItems: "center", 
-                     textDecoration: "none", 
-                     color: "inherit", mr: 2 }}>
-                    <Box component="img" src={logo} alt="YouStream" sx={{ width: { xs: 36, sm: 48 }, height: { xs: 36, sm: 48 }, borderRadius: 1 }} />
-                    {!isSmall && <Typography variant="h6" sx={{ ml: 1, fontWeight: 700 }}>YouStream</Typography>}
-                </Box>
-
-                <Box sx={{
-                    flexGrow: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    px: 1
-                }}>
-                    <Box sx={{
-                        width: { xs: "100%", sm: "70%", md: "50%" },
-                        maxWidth: 800,
-                    }}>
-                        <Box sx={{
+                    <Box onClick={clearSearch}
+                        sx={{
+                            cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
-                            bgcolor: "white",
-                            borderRadius: 5,
-                            border:1,
-                            borderColor:'lightgrey'
-
+                            textDecoration: "none",
+                            color: "inherit", mr: 2
                         }}>
-                            <TextField
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={onKeyDown}
-                                placeholder="Search"
-                                size="small"
-                                variant="outlined"
-                                fullWidth
-                                InputProps={{
-                                    sx: { borderRadius: 5, "& .MuiOutlinedInput-notchedOutline": { border: "none" }, px: 1, py: { xs: 0.5, sm: 1 } },
-                                    endAdornment: (<InputAdornment position="end"></InputAdornment>),
-                                }}
-                            />
-                            <IconButton onClick={doSearch} sx={{ px: 2 }}>
-                                <SearchIcon sx={{ color: "grey" }} />
-                            </IconButton>
+                        <Box component="img" src={logo} alt="YouStream" sx={{ width: { xs: 36, sm: 48 }, height: { xs: 36, sm: 48 }, borderRadius: 1 }} />
+                        {!isSmall && <Typography variant="h6" sx={{ ml: 1, fontWeight: 700 }}>YouStream</Typography>}
+                    </Box>
+
+                    <Box sx={{
+                        flexGrow: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        px: 1
+                    }}>
+                        <Box sx={{
+                            width: { xs: "100%", sm: "70%", md: "50%" },
+                            maxWidth: 800,
+                        }}>
+                            <Box sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                bgcolor: "white",
+                                borderRadius: 5,
+                                border: 1,
+                                borderColor: 'lightgrey'
+
+                            }}>
+                                <TextField
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={onKeyDown}
+                                    placeholder="Search"
+                                    size="small"
+                                    variant="outlined"
+                                    fullWidth
+                                    InputProps={{
+                                        sx: { borderRadius: 5, "& .MuiOutlinedInput-notchedOutline": { border: "none" }, px: 1, py: { xs: 0.5, sm: 1 } },
+                                        endAdornment: (<InputAdornment position="end"></InputAdornment>),
+                                    }}
+                                />
+                                <IconButton onClick={doSearch} sx={{ px: 2 }}>
+                                    <SearchIcon sx={{ color: "grey" }} />
+                                </IconButton>
+                            </Box>
                         </Box>
                     </Box>
-                </Box>
 
-                <Box sx={{ ml: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ ml: 1, display: "flex", alignItems: "center", gap: 1 }}>
 
-                    {!user && (
-                        <Button component={Link} to="/login" variant="text" size="small">
-                            Login
-                        </Button>
-                    )}
+                        {!user && (
+                            <Button component={Link} to="/login" variant="text" size="small">
+                                Login
+                            </Button>
+                        )}
 
-                    {user && (
-                        <>
-                            <Tooltip title={avatarLabel}>
-                                <IconButton onClick={openMenu} size="small" sx={{ ml: 1 }}>
-                                    <Avatar src={user.avatar || ""} alt={user.name || user.email}>
-                                        {(!user.avatar && (user.name || user.email)) ? (user.name || user.email).charAt(0).toUpperCase() : ""}
-                                    </Avatar>
-                                </IconButton>
-                            </Tooltip>
+                        {user && (
+                            <>
+                                <Tooltip title={avatarLabel}>
+                                    <IconButton onClick={openMenu} size="small" sx={{ ml: 1 }}>
+                                        <Avatar src={""} alt={user.name || user.email}>
+                                            {(user.name || user.email).charAt(0).toUpperCase() }
+                                        </Avatar>
+                                    </IconButton>
+                                </Tooltip>
 
-                            <Menu anchorEl={anchorEl} open={menuOpen} onClose={closeMenu} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} transformOrigin={{ vertical: "top", horizontal: "right" }} PaperProps={{ sx: { minWidth: 180 } }}>
-                                <MenuItem onClick={() => { closeMenu(); navigate("/profile"); }}>Profile</MenuItem>
-                                <MenuItem onClick={() => { closeMenu(); navigate("/settings"); }}>Settings</MenuItem>
-                                <MenuItem onClick={handleSignOut}>Logout</MenuItem>
-                            </Menu>
-                        </>
-                    )}
-                </Box>
-                <SideDrawer
-                    open={drawerOpen}
-                    onClose={handleDrawerToggle}
-                />
-            </Toolbar>
-        </AppBar>
-        
-        <Toolbar />
+                                <Menu anchorEl={anchorEl} open={menuOpen} onClose={closeMenu} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} transformOrigin={{ vertical: "top", horizontal: "right" }} PaperProps={{ sx: { minWidth: 180 } }}>
+                                    <MenuItem onClick={() => { closeMenu(); navigate("/profile"); }}>Profile</MenuItem>
+                                    <MenuItem onClick={() => { closeMenu(); navigate("/settings"); }}>Settings</MenuItem>
+                                    <MenuItem onClick={handleSignOut}>Logout</MenuItem>
+                                </Menu>
+                            </>
+                        )}
+                    </Box>
+                    <SideDrawer
+                        open={drawerOpen}
+                        onClose={handleDrawerToggle}
+                    />
+                </Toolbar>
+            </AppBar>
+
+            <Toolbar />
         </>
     );
 }
