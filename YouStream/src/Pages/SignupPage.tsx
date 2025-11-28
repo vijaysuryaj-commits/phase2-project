@@ -61,20 +61,6 @@ export default function SignupPage() {
       setLoading(true);
 
       await dispatch(signupLocal(trimmedEmail, trimmedPass));
-
-      const key = "youstream_local_user:" + trimmedEmail;
-      const user = localStorage.getItem(key);
-
-      if (user) {
-        try {
-          const u = JSON.parse(user);
-          u.name = name || u.name || email.split("@")[0];
-          localStorage.setItem(key, JSON.stringify(u));
-        } catch (innerError) {
-          console.error("Error updating local storage user name:", innerError);
-        }
-      }
-
       setLoading(false);
       navigate("/");
 

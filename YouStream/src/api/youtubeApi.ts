@@ -258,11 +258,16 @@ export async function rateVideo(accessToken: string, videoId: string , rating: "
   });
 }
 
+const youtube1 = axios.create({
+  baseURL: "https://www.googleapis.com/youtube/v3",
+  params: {
+  },
 
+});
 export async function checkSubscriptionStatus(accessToken: string, channelId: string) {
   if (!accessToken) throw new Error("Missing access token");
   const params = { part: "snippet", forChannelId: channelId, mine: true, maxResults: 1 };
-  const res = await youtube.get("/subscriptions", {
+  const res = await youtube1.get("/subscriptions", {
     params,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -280,7 +285,7 @@ export async function subscribeToChannel(accessToken: string, channelId: string)
       },
     },
   };
-  const res = await youtube.post(url, body, {
+  const res = await youtube1.post(url, body, {
     params: { part: "snippet" },
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
   });
@@ -289,7 +294,7 @@ export async function subscribeToChannel(accessToken: string, channelId: string)
 
 export async function unsubscribe(accessToken: string, subscriptionId: string) {
   if (!accessToken) throw new Error("Missing access token");
-  return youtube.delete("/subscriptions", {
+  return youtube1.delete("/subscriptions", {
     params: { id: subscriptionId },
     headers: { Authorization: `Bearer ${accessToken}` },
   });
