@@ -84,10 +84,10 @@ export const toggleLocalSubscription = (channelId: string) => async (dispatch: a
   const state = getState();
   const provider = state.auth?.provider;
   const user = { ...state.auth?.user };
-
   if (provider !== "local" || !user || !user.email) {
     return;
   }
+
 
   const subs: string[] = Array.isArray(user.subs) ? [...user.subs] : [];
   const idx = subs.indexOf(channelId);

@@ -38,6 +38,8 @@ describe('authThunk', () => {
     beforeEach(() => {
         store = mockStore({});
         localStorageMock.clear()
+        localStorageMock.setItem.mockClear()
+        localStorageMock.getItem.mockClear()
         mockAxios.reset()
         revokeToken.mockClear()
     })
@@ -190,6 +192,8 @@ describe('authThunk', () => {
         await store.dispatch(updateLocalUserLikes('video2', 'dislike'));
 
         expect(store.getActions).toHaveLength(0)
+        expect(localStorageMock.setItem).not.toHaveBeenCalled();
+
     });
 
     test('toggleLocalSubscription updates redux and stores in local storage', async () => {
@@ -227,12 +231,12 @@ describe('authThunk', () => {
         expect(localStorageMock.setItem).toHaveBeenCalledWith(
             'youstream_current_auth', JSON.stringify(expectedCurrentAuth)
         );
+        // await store.dispatch(toggleLocalSubscription('ABC'));
 
 
     })
 
     test('toggleLocalSubscription should return early and dispatch no actions if the provider is not local', async () => {
-        localStorageMock.clear()
         const initialState = {
             auth: {
                 user: { email: 'user@google.com' },
@@ -246,5 +250,6 @@ describe('authThunk', () => {
 
         expect(store.getActions()).toHaveLength(0);
         expect(localStorageMock.setItem).not.toHaveBeenCalled();
+
     });
 })
