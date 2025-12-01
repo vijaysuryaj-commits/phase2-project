@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import RelatedVideoItem from '../Components/RelatedVideoItem';
+import RelatedVideoItem from '../../Components/RelatedVideoItem';
 
 jest.mock('moment', () => {
   const m = () => ({ fromNow: () => 'a few seconds ago' });
