@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, CircularProgress, Button } from "@mui/material";
+import { Box, Typography, CircularProgress, Button, Grid, Skeleton } from "@mui/material";
 import { searchVideos } from "../api/youtubeApi";
 import Grids from "../Components/Grid";
 import SearchTabs from "../Components/SearchTabs";
@@ -15,7 +15,7 @@ const SearchPage = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate()
-  
+
   useEffect(() => {
     if (!query) return;
 
@@ -50,13 +50,13 @@ const SearchPage = () => {
         try {
           if (loading || loadingMore || !nextPageToken) return;
 
-          const nearBottom =window.innerHeight + window.scrollY >= document.body.offsetHeight - threshold;
+          const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - threshold;
 
           if (nearBottom) {
             setLoadingMore(true);
             try {
               const res = await searchVideos(query, nextPageToken);
-              setVideos((prev: any) => [...prev, ...(res.videos )]);
+              setVideos((prev: any) => [...prev, ...(res.videos)]);
               setNextPageToken(res.nextPageToken || null);
             } catch (err: any) {
               setError(err.message);
@@ -74,6 +74,17 @@ const SearchPage = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, [nextPageToken, loading, loadingMore, query]);
 
+  const loadSkeleton = () => {
+    return Array.from({ length: 8 }).map((_, i) => (
+      <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} key={i}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Skeleton variant="rectangular" sx={{ width: "100%", pt: "56.25%", borderRadius: 3 }} />
+          <Skeleton variant="text" width="80%" height={24} />
+          <Skeleton variant="text" width="60%" height={20} />
+        </Box>
+      </Grid>
+    ));
+  }
   return (
     <Box p={2}>
       <Button
@@ -94,15 +105,16 @@ const SearchPage = () => {
         Search results for: <strong>{query}</strong>
       </Typography>
       <SearchTabs />
-      {loading && videos.length === 0 &&
-        <Box display="flex" justifyContent="center" mt={4}>
-          <CircularProgress />
-        </Box>
-      }
+
+      {loading ? (
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          {loadSkeleton()}
+        </Grid>
+      ) : (
+        videos.length > 0 && <Grids videos={videos} />
+      )}
 
       {error && <Box color="error.main">Error: {error}</Box>}
-
-      {videos.length > 0 && <Grids videos={videos} />}
 
       {loadingMore && (
         <Box display="flex" justifyContent="center" mt={3}>

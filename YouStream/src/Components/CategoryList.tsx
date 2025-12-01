@@ -1,11 +1,14 @@
-import React, { useEffect, useState, } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchCategories } from "../api/youtubeApi";
 import {
   Chip,
   Box,
   CircularProgress,
   Typography,
+  IconButton,
 } from "@mui/material";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface Props {
   selectedCategoryId: string | null;
@@ -16,16 +19,19 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }: Props) => {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
 
   useEffect(() => {
-
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        const categories = await fetchCategories();
+        const fetchedCategories = await fetchCategories();
 
-        const assignable = Array.isArray(categories) ? categories.filter((cat: any) => cat?.snippet?.assignable) : [];
+        const assignable = Array.isArray(fetchedCategories) ? fetchedCategories.filter((cat: any) => cat?.snippet?.assignable) : [];
         setCategories(assignable);
       } catch (err: any) {
         setError(err?.message ?? "Failed to load categories");
@@ -33,10 +39,36 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }: Props) => {
         setLoading(false);
       }
     })();
-    return () => {
-    };
   }, []);
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const current = scrollContainerRef.current;
+      const scrollAmount = direction === 'left' ? -200 : 200;
+
+      current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        setCanScrollLeft(scrollLeft > 5);
+        setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+      }
+    };
+
+    scrollContainerRef.current?.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => {
+      scrollContainerRef.current?.removeEventListener('scroll', handleScroll);
+    };
+  }, [categories, loading]);
 
 
   if (loading) {
@@ -62,17 +94,33 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }: Props) => {
         maxWidth: 1200,
         mx: "auto",
         position: "relative",
-        px: { xs: 1, sm: 2 }
+        px: { xs: 1, sm: 2 },
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
       }}>
 
+        <IconButton
+          onClick={() => scroll('left')}
+          disabled={!canScrollLeft}
+          sx={{ display: 'inline-flex', zIndex: 1, color: "black" }}
+          aria-label="scroll left"
+
+        >
+          <ArrowBackIosNewIcon fontSize="small" />
+        </IconButton>
 
         <Box
+
+          ref={scrollContainerRef}
           sx={{
             overflowX: "auto",
             scrollBehavior: "smooth",
             "&::-webkit-scrollbar": { display: "none" },
             msOverflowStyle: "none",
             scrollbarWidth: "none",
+            flexGrow: 1,
+            minWidth: 0,
           }}
         >
           <Box
@@ -141,6 +189,16 @@ const CategoryList = ({ selectedCategoryId, onCategorySelect }: Props) => {
             })}
           </Box>
         </Box>
+
+        <IconButton
+          onClick={() => scroll('right')}
+          disabled={!canScrollRight}
+          sx={{ display: 'inline-flex', zIndex: 1, color: "black" }}
+          aria-label="scroll right"
+        >
+          <ArrowForwardIosIcon fontSize="small" />
+        </IconButton>
+
       </Box>
     </Box>
   );

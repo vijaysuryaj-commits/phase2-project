@@ -35,7 +35,7 @@ const VideoSkeleton = () => (
   </Box>
 );
 
-const RelatedSkeletonList: React.FC<{ count?: number }> = ({ count = 6 }) => {
+const RelatedSkeletonList = ({ count = 6 }) => {
   const items = Array.from({ length: count });
   return (
     <Box sx={{ display: "grid", gap: 2 }}>
@@ -52,7 +52,7 @@ const RelatedSkeletonList: React.FC<{ count?: number }> = ({ count = 6 }) => {
   );
 };
 
-const WatchPage: React.FC = () => {
+const WatchPage = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -72,53 +72,43 @@ const WatchPage: React.FC = () => {
   const [subscriptionIdState, setSubscriptionIdState] = useState<string | null>(null);
   const [subLoading, setSubLoading] = useState(false);
 
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+
   useEffect(() => {
     setUserRating(user?.likes?.[id] || "none");
   }, [user, id]);
 
   useEffect(() => {
     if (!id) return;
-    let canceled = false;
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        const v = await getVideoDetails(id);
-        if (canceled) return;
-        setVideo(v);
+        const video = await getVideoDetails(id);
+        setVideo(video);
       } catch (err: any) {
-        if (canceled) return;
         setError(err?.message ?? "Failed to load video");
       } finally {
-        if (!canceled) setLoading(false);
+        setLoading(false);
       }
     })();
-
-    return () => {
-      canceled = true;
-    };
   }, [id]);
 
   useEffect(() => {
     if (!id) return;
-    let canceled = false;
     (async () => {
       setLoadingRelated(true);
       try {
         const items = await getRelatedVideos(id, 12);
         const filtered = items.filter((video: any) => video.id !== id);
-        if (canceled) return;
         setRelated(filtered);
       } catch (err) {
         console.error("related error", err);
       } finally {
-        if (!canceled) setLoadingRelated(false);
+        setLoadingRelated(false);
       }
     })();
 
-    return () => {
-      canceled = true;
-    };
   }, [id]);
 
   useEffect(() => {
@@ -308,6 +298,20 @@ const WatchPage: React.FC = () => {
   if (!video) {
     return (
       <Box p={2}>
+        <Button
+          size="large"
+          onClick={() => navigate(-1)}
+          sx={{
+            mb: 2,
+            color: "black",
+            textTransform: "none",
+            fontWeight: 'bolder',
+            bgcolor: 'rgba(0,0,0,0.05)',
+            "&:hover": { backgroundColor: "lightgrey" },
+          }}
+        >
+          Back
+        </Button>
         <Typography>No video data</Typography>
       </Box>
     );
@@ -324,7 +328,22 @@ const WatchPage: React.FC = () => {
       gap={2}
       alignItems="start"
     >
+
       <Box sx={{ minWidth: 0 }}>
+        <Button
+          size="large"
+          onClick={() => navigate(-1)}
+          sx={{
+            mb: 2,
+            color: "black",
+            textTransform: "none",
+            fontWeight: 'bolder',
+            bgcolor: 'rgba(0,0,0,0.05)',
+            "&:hover": { backgroundColor: "lightgrey" },
+          }}
+        >
+          Back
+        </Button>
         <Box
           sx={{
             position: "relative",
@@ -384,7 +403,7 @@ const WatchPage: React.FC = () => {
               startIcon={<ThumbDown />}
               variant="text"
             />
-            <Button color="primary" variant={isSubscribedState ? "contained" : "outlined"} onClick={handleSubscribeToggle} disabled={subLoading}>
+            <Button color={isSubscribedState ? "inherit" : "error"} variant={"contained"} onClick={handleSubscribeToggle} disabled={subLoading}>
               {isSubscribedState ? "Subscribed" : "Subscribe"}
             </Button>
           </Box>
@@ -392,9 +411,21 @@ const WatchPage: React.FC = () => {
 
         <Divider sx={{ my: 2 }} />
 
-        <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+        <Typography variant="body2" sx={{
+          whiteSpace: "pre-line",
+          maxHeight: isDescriptionExpanded ? 'none' : '6em',
+          overflow: 'hidden',
+        }}>
           {snippet.description}
         </Typography>
+        {snippet.description.length > 200 && (
+          <Button
+            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+            sx={{ mt: 1, textTransform: 'none' }}
+          >
+            {isDescriptionExpanded ? 'Show less' : 'Show more'}
+          </Button>
+        )}
       </Box>
 
       <Box sx={{ minWidth: 0, maxWidth: 480 }}>
@@ -409,9 +440,14 @@ const WatchPage: React.FC = () => {
         {!loadingRelated && related.length > 0 && (
           <Box
             sx={{
-              maxHeight: "calc(100vh - 180px)",
+              maxHeight: "calc(100vh - 80px)",
               overflowY: "auto",
               pr: 1,
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
               "& .related-title": {
                 overflow: "hidden",
                 textOverflow: "ellipsis",

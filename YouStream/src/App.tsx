@@ -16,6 +16,7 @@ const SignupPage = lazy(() => import('./Pages/SignupPage'))
 const ProfilePage = lazy(() => import('./Pages/ProfilePage'))
 // import NoMatchFoundRoute from './Pages/NoMatchFoundRoute'
 const NoMatchFoundRoute = lazy(() => import('./Pages/NoMatchFoundRoute'))
+const ChannelPage = lazy(()=> import('./Pages/ChannelPage'))
 import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { setAuth } from './redux/auth/authActions'
@@ -136,6 +137,21 @@ function App() {
             }
           >
             <ProfilePage />
+
+          </Suspense>} />
+        <Route path="/channel/:id" element={
+          <Suspense
+            fallback={
+              <Box
+                display={"flex"}
+                justifyContent={"center"}
+                sx={{ mt: "220px" }}
+              >
+                <CircularProgress sx={{ color: "black" }} />
+              </Box>
+            }
+          >
+            <ChannelPage />
 
           </Suspense>} />
         <Route path='*' element={

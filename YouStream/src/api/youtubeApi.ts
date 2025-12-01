@@ -11,7 +11,7 @@ if (!API_KEY) {
 }
 
 const youtube = axios.create({
-  baseURL: "https://www.googleapis.com/youtube/v3",
+  baseURL: "https://www.googleapis.com/youtube/v3", 
   params: {
     key: API_KEY,
   },
@@ -36,7 +36,7 @@ export async function getMostPopularVideos(pageToken?: string, maxResults = 12) 
   };
 }
 
-export async function searchVideos(query: string|undefined, pageToken?: string, maxResults = 12): Promise<SearchResult> {
+export async function searchVideos(query: string | undefined, pageToken?: string, maxResults = 12): Promise<SearchResult> {
   if (!query || query.trim().length === 0)
     return {
       videos: [],
@@ -84,12 +84,16 @@ export async function searchChannels(query: string, pageToken?: string, maxResul
     maxResults,
   };
   if (pageToken) params.pageToken = pageToken;
+  try {
 
-  const res = await youtube.get("/search", { params });
-  return {
-    channels: res.data?.items || [],
-    nextPageToken: res.data?.nextPageToken || null,
-  };
+    const res = await youtube.get("/search", { params });
+    return {
+      channels: res.data?.items || [],
+      nextPageToken: res.data?.nextPageToken || null,
+    };
+  } catch (error: any) {
+    return (error.message)
+  }
 }
 
 
@@ -104,7 +108,7 @@ export async function getVideoDetails(videoId: string) {
 }
 
 const RELATED_CACHE_KEY_PREFIX = "youstream_related_v2:";
-const CACHE_TIMELIMIT = 259200000;
+const CACHE_TIMELIMIT = 259200;
 
 function readRelatedCache(key: string) {
   try {
@@ -126,7 +130,6 @@ function writeRelatedCache(key: string, items: any[]) {
     localStorage.setItem(key, JSON.stringify({ ts: Date.now(), items }));
   } catch { }
 }
-
 
 export async function getRelatedVideos(videoId: string, maxResults = 12) {
   if (!videoId) return [];
@@ -155,12 +158,12 @@ export async function getRelatedVideos(videoId: string, maxResults = 12) {
     if (channelId) {
       (baseSearchParams).channelId = channelId;
     } else if (categoryId) {
-      (baseSearchParams ).videoCategoryId = categoryId;
+      (baseSearchParams).videoCategoryId = categoryId;
     } else if (tags.length) {
-      (baseSearchParams ).q = tags.slice(0, 5).join(" ");
+      (baseSearchParams).q = tags.slice(0, 5).join(" ");
     } else {
       const keywords = title.split(/\s+/).slice(0, 6).join(" ");
-      (baseSearchParams ).q = keywords || title;
+      (baseSearchParams).q = keywords || title;
     }
 
     const searchRes = await youtube.get("/search", { params: baseSearchParams });
@@ -202,7 +205,7 @@ export async function getRelatedVideos(videoId: string, maxResults = 12) {
 let cachedCategories: any[] | null = null;
 let categoriesPromise: Promise<any[] | null> | null = null;
 let categoriesFetchedAt = 0;
-const cacheTimelimit = 1000 * 60 * 60 * 6; 
+const cacheTimelimit = 1000 * 60 * 60 * 6;
 
 export async function fetchCategories() {
   if (cachedCategories && (Date.now() - categoriesFetchedAt) < cacheTimelimit) {
@@ -227,17 +230,17 @@ export async function fetchCategories() {
   return categoriesPromise;
 }
 
-export async function fetchVideosByCategory(categoryId : string, regionCode = 'US') {
+export async function fetchVideosByCategory(categoryId: string, regionCode = 'US') {
   const params = {
-    part: "snippet,contentDetails,statistics", 
-    chart: 'mostPopular', 
-    videoCategoryId: categoryId, 
+    part: "snippet,contentDetails,statistics",
+    chart: 'mostPopular',
+    videoCategoryId: categoryId,
     regionCode: regionCode,
-    maxResults: 12 
+    maxResults: 12
   };
 
   try {
-    const res = await youtube.get("/videos", { params }); 
+    const res = await youtube.get("/videos", { params });
     return res.data.items ?? [];
   } catch (error) {
     console.error(`Error fetching videos for category ${categoryId}:`, error.response?.data || error.message);
@@ -246,24 +249,26 @@ export async function fetchVideosByCategory(categoryId : string, regionCode = 'U
 }
 
 
-export async function rateVideo(accessToken: string, videoId: string , rating: "like" | "dislike" | "none") {
-  
-  const params = {
-    id: videoId,
-    rating,
-  };
-  await youtube.post("/videos/rate", null, {
-    params,
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-}
-
 const youtube1 = axios.create({
   baseURL: "https://www.googleapis.com/youtube/v3",
   params: {
   },
 
 });
+
+export async function rateVideo(accessToken: string, videoId: string, rating: "like" | "dislike" | "none") {
+
+  const params = {
+    id: videoId,
+    rating,
+  };
+  await youtube1.post("/videos/rate", null, {
+    params,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+
 export async function checkSubscriptionStatus(accessToken: string, channelId: string) {
   if (!accessToken) throw new Error("Missing access token");
   const params = { part: "snippet", forChannelId: channelId, mine: true, maxResults: 1 };
@@ -271,7 +276,7 @@ export async function checkSubscriptionStatus(accessToken: string, channelId: st
     params,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  return res.data; 
+  return res.data;
 }
 
 export async function subscribeToChannel(accessToken: string, channelId: string) {
@@ -289,7 +294,7 @@ export async function subscribeToChannel(accessToken: string, channelId: string)
     params: { part: "snippet" },
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
   });
-  return res.data; 
+  return res.data;
 }
 
 export async function unsubscribe(accessToken: string, subscriptionId: string) {
@@ -300,3 +305,95 @@ export async function unsubscribe(accessToken: string, subscriptionId: string) {
   });
 }
 
+
+export async function getLikedVideos(accessToken: string) {
+  if (!accessToken) throw new Error("Missing access token");
+  const params: Record<string, string | number> = {
+    part: 'snippet,statistics',
+    myRating: 'like'
+  }
+  return youtube1.get('/videos', {
+    params,
+    headers: { Authorization: `Bearer ${accessToken}` }
+  })
+}
+
+export async function getLikedVideosLocal(email: string) {
+  const key = "youstream_local_user:" + email;
+  const userDatakey = localStorage.getItem(key);
+  if (!userDatakey) return [];
+
+  const userData = JSON.parse(userDatakey);
+  const likes = userData?.likes || {};
+
+  const likedVideoIds = Object.keys(likes).filter(videoId => likes[videoId] === 'like');
+
+  if (likedVideoIds.length === 0) return [];
+
+  const promises = likedVideoIds.map(id => getVideoDetails(id));
+  const videoDetails = await Promise.all(promises);
+
+  return videoDetails.filter(Boolean);
+}
+
+
+export async function getSubscribedChannels(accessToken: string) {
+  if (!accessToken) throw new Error("Missing access token");
+  const params: Record<string, string | number> = {
+    part: 'snippet',
+    mine: 'true'
+  }
+  const response = await youtube1.get('/subscriptions', {
+    params,
+    headers: { Authorization: `Bearer ${accessToken}` }
+  })
+
+  return response.data.items || []
+}
+
+export async function getSubscribedChannelsLocal(email: string): Promise<any[]> {
+  const key = "youstream_local_user:" + email;
+  const userDataKey = localStorage.getItem(key);
+
+  if (!userDataKey) return [];
+
+  const userData = JSON.parse(userDataKey);
+  const subscribedChannelIds: string[] = userData?.subs || [];
+
+  if (subscribedChannelIds.length === 0) return [];
+  const channelDetails = await fetchChannelDetailsFromApi(subscribedChannelIds);
+  return channelDetails;
+}
+
+async function fetchChannelDetailsFromApi(ids: string[]): Promise<any[]> {
+  const idString = ids.join(',');
+  const params = {
+    part: 'snippet',
+    id: idString
+  }
+  try {
+    const response = await youtube.get('/channels', { params })
+    return response.data.items || [];
+
+  } catch (error) {
+    console.error("Error fetching channel details:", error);
+    return [];
+  }
+}
+
+export async function fetchChannelDetails(channelId: string) {
+  const params = {
+    part: 'snippet,contentDetails,statistics,brandingSettings',
+    id: channelId
+  }
+
+  try {
+    const response = await youtube.get('/channels', { params })
+    return response.data?.items || [];
+
+  }
+  catch (error) {
+    console.error("Error fetching channel details:", error);
+    return [];
+  }
+}

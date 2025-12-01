@@ -62,11 +62,11 @@ export default function SignupPage() {
 
       await dispatch(signupLocal(trimmedEmail, trimmedPass));
       setLoading(false);
-      navigate("/");
+      navigate(-1);
 
-    } catch (e: any) {
+    } catch (error: any) {
       setLoading(false);
-      setErr(e?.message || "Signup failed");
+      setErr(error?.message || "Signup failed");
     }
   };
 
@@ -115,7 +115,7 @@ export default function SignupPage() {
             accessToken,
           })
         );
-        navigate("/");
+        navigate(-1);
       },
     });
 

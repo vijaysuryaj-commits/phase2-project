@@ -5,7 +5,7 @@ import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import { Avatar, Typography, Button, Stack } from "@mui/material";
+import { Avatar, Typography, Button, Stack, Skeleton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton } from "@mui/material";
 import logo from "../assets/YouStream.jpg";
@@ -26,6 +26,7 @@ const SideDrawer = ({ open, onClose }: Props) => {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch<any>();
     const navigate = useNavigate();
+    const [category, setCategory] = useState("")
 
     const auth = useSelector((s: RootState) => s.auth);
     const user = auth?.user;
@@ -53,6 +54,7 @@ const SideDrawer = ({ open, onClose }: Props) => {
     }, []);
 
     const handleClickCategory = (id: string, title: string) => {
+        setCategory(title)
         dispatch(setSelectedCategory(id || null, title || null));
         onClose();
         navigate("/", { replace: true });
@@ -111,31 +113,31 @@ const SideDrawer = ({ open, onClose }: Props) => {
                             {user ? (
                                 <Stack spacing={0.3}>
                                     <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                                        Hi, {user.name ? user.name.split(" ")[0] : user.email}
+                                        Hi, {user.name ? user.name.split(" ")[0].charAt(0).toUpperCase() + user.name.split(" ")[0].slice(1) : user.email}
                                     </Typography>
+
+                                </Stack>
+                            ) : (
+                                <Stack spacing={0.3}>
+                                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                                        Hi, there stranger
+                                    </Typography>
+
                                     <Button
-                                        onClick={handleLogout}
+                                        component={Link}
+                                        to="/login"
                                         size="small"
+                                        onClick={onClose}
                                         sx={{
                                             color: "primary.main",
                                             p: 0,
                                             minWidth: 0,
-                                            
+
                                         }}
                                     >
-                                        LOGOUT
+                                        Login
                                     </Button>
                                 </Stack>
-                            ) : (
-                                <Button
-                                    component={Link}
-                                    to="/login"
-                                    variant="outlined"
-                                    size="small"
-                                    onClick={onClose}
-                                >
-                                    Login
-                                </Button>
                             )}
                         </Box>
                     </Box>
@@ -143,7 +145,8 @@ const SideDrawer = ({ open, onClose }: Props) => {
                     <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
 
                     <List sx={{ mb: 1 }}>
-                        <ListItem
+                        
+                        <ListItem 
                             sx={{
                                 px: 0,
                                 py: 1,
@@ -152,10 +155,12 @@ const SideDrawer = ({ open, onClose }: Props) => {
                                 cursor: "pointer",
                             }}
                             onClick={() => {
+                                navigate('/profile')
                                 onClose();
                             }}
                         >
-                            <ListItemText primary="Favorites" primaryTypographyProps={{ fontWeight: 600 }} />
+                            
+                            <ListItemText primary="Profile" primaryTypographyProps={{ fontWeight: 600 }} />
                         </ListItem>
                     </List>
 
@@ -173,25 +178,34 @@ const SideDrawer = ({ open, onClose }: Props) => {
                         EXPLORE
                     </Typography>
 
-                    <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+                    <Box sx={{
+                        flex: 1,
+                        overflowY: "auto",
+                        pr: 1,
+                        scrollBehavior: "smooth",
+                        "&::-webkit-scrollbar": { display: "none" },
+                        msOverflowStyle: "none",
+                        scrollbarWidth: "none",
+                    }}>
                         <List>
-                            {loading && (
-                                <ListItem>
-                                    <ListItemText primary="Loading..." />
-                                </ListItem>
-                            )}
+                            {loading && Array.from({length:16}).map(()=>(
+                                <>
+                                    <ListItem><Skeleton variant="text" width="100%" /></ListItem>
+                                </>
+                            ))}
 
                             {!loading &&
                                 categories.map((cat) => (
                                     <ListItem
                                         key={cat.id}
                                         sx={{
+                                            bgcolor: category === cat.title ? "rgba(0,0,0,0.06)" : "white",
                                             px: 0,
                                             py: 1,
                                             "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                                             transition: "0.15s",
                                             cursor: "pointer",
-                                            
+
                                         }}
                                         onClick={() => handleClickCategory(cat.id, cat.title)}
                                     >
@@ -206,6 +220,22 @@ const SideDrawer = ({ open, onClose }: Props) => {
                             )}
                         </List>
                     </Box>
+                    <Divider sx={{ borderColor: "lightgrey", mb: 1 }} />
+                    {user &&
+
+                        <Button
+                            onClick={handleLogout}
+                            size="small"
+                            sx={{
+                                color: "black",
+                                p: 0,
+                                minWidth: 0,
+
+                            }}
+                        >
+                            LOGOUT
+                        </Button>
+                    }
                 </Box>
             </Drawer>
         </div>

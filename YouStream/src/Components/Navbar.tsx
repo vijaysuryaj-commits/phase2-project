@@ -1,4 +1,4 @@
-﻿import React, { lazy, useState } from "react";
+﻿import React, { lazy, Suspense, useState } from "react";
 import {
     AppBar,
     Toolbar,
@@ -65,8 +65,8 @@ export default function Navbar() {
     };
 
     const clearSearch = () => {
-        if(query.trim())
-        setQuery("")
+        if (query.trim())
+            setQuery("")
         navigate('/')
     }
 
@@ -148,7 +148,7 @@ export default function Navbar() {
                                 <Tooltip title={avatarLabel}>
                                     <IconButton onClick={openMenu} size="small" sx={{ ml: 1 }}>
                                         <Avatar src={""} alt={user.name || user.email}>
-                                            {(user.name || user.email).charAt(0).toUpperCase() }
+                                            {(user.name || user.email).charAt(0).toUpperCase()}
                                         </Avatar>
                                     </IconButton>
                                 </Tooltip>
@@ -161,10 +161,14 @@ export default function Navbar() {
                             </>
                         )}
                     </Box>
-                    <SideDrawer
-                        open={drawerOpen}
-                        onClose={handleDrawerToggle}
-                    />
+                    <Suspense fallback={<div></div>}>
+                        {drawerOpen && (
+                            <SideDrawer
+                                open={drawerOpen}
+                                onClose={handleDrawerToggle}
+                            />
+                        )}
+                    </Suspense>
                 </Toolbar>
             </AppBar>
 

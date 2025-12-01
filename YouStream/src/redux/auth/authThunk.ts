@@ -104,7 +104,6 @@ export const toggleLocalSubscription = (channelId: string) => async (dispatch: a
     localStorage.setItem(key, JSON.stringify(user));
     saveCurrentAuth(user, null, "local");
   } catch (e) {
-    console.warn("Failed to persist local user subscriptions", e);
   }
 
   dispatch({
